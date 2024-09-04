@@ -21,12 +21,13 @@ RENDER_WIDTH = 960
 PI = np.pi
 no_of_points = 100
 
-MOTOR_NAMES = [
-    "motor_hip_fl", "motor_knee_fl", "motor_abduction_fl",
-    "motor_hip_hr", "motor_knee_hr", "motor_abduction_hr",
-    "motor_hip_fr", "motor_knee_fr", "motor_abduction_fr",
-    "motor_hip_hl", "motor_knee_hl", "motor_abduction_hl"
-]
+
+# MOTOR_NAMES = [
+#     "motor_hip_fl", "motor_knee_fl", "motor_abduction_fl",
+#     "motor_hip_hr", "motor_knee_hr", "motor_abduction_hr",
+#     "motor_hip_fr", "motor_knee_fr", "motor_abduction_fr",
+#     "motor_hip_hl", "motor_knee_hl", "motor_abduction_hl"
+# ]
 
 
 def constrain_theta(theta):
@@ -74,20 +75,19 @@ class Solo12PybulletEnv(gym.Env):
                  seed_value=100,
                  wedge=True,
                  IMU_Noise=False,
-                 step_length=0.08,
-                 step_height=0.06,
                  test=False,
+                 default_pos=(-0.23, 0, 0.3),
                  deg=11):
 
         # global phase
 
-        self.gait = gait
+        # self.gait = gait
         self.pd_control_enabled = True
-        self.x_init = 0
-        self.y_init = -0.23
-        self.step_length = step_length / 2
-        self.step_height = step_height
-        self.motor_offset = [np.pi / 2, 0, 0]
+        # self.x_init = 0
+        # self.y_init = -0.23
+        # self.step_length = step_length / 2
+        # self.step_height = step_height
+        # self.motor_offset = [np.pi / 2, 0, 0]
         # self.phase = None
         self.plane = None
         self.solo12 = None
@@ -145,7 +145,7 @@ class Solo12PybulletEnv(gym.Env):
         self.wedge_start = 0.5
         self.wedge_halflength = 2
 
-        if self.gait == 'trot':
+        if gait is 'trot':
             phase = [0, no_of_points, no_of_points, 0]
         elif gait == 'walk':
             phase = [0, no_of_points, 3 * no_of_points / 2, no_of_points / 2]
@@ -393,55 +393,55 @@ class Solo12PybulletEnv(gym.Env):
         """
         return list(self.kinematic.inverse_kinematics(x, y, z, self.leg_name_to_sol_branch_Solo12[leg_name]))
 
-    def gen_signal(self, t, phase):
-        """Generates a modified sinusoidal reference leg trajectory with half-circle shape.
+    # def gen_signal(self, t, phase):
+    #     """Generates a modified sinusoidal reference leg trajectory with half-circle shape.
+    #
+    #     Args:
+    #       t: Current time in simulation.
+    #       phase: The phase offset for the periodic trajectory.
+    #
+    #
+    #     Returns:
+    #       The desired leg x and y angle at the current time.
+    #     """
+    #     period = 1 / self._frequency
+    #     theta = (2 * np.pi / period * t + phase) % (2 * np.pi)
+    #
+    #     x = -self.step_length * np.cos(theta) + self.x_init
+    #     if theta > np.pi:
+    #         y = self.y_init
+    #     else:
+    #         y = self.step_height * np.sin(theta) + self.y_init
+    #     return x, y
 
-        Args:
-          t: Current time in simulation.
-          phase: The phase offset for the periodic trajectory.
+    # def signal(self, t):
+    #     """Generates the trotting gait for the robot.
+    #
+    #     Args:
+    #       t: Current time in simulation.
+    #
+    #     Returns:
+    #       A numpy array of the reference leg positions.
+    #     """
+    #     # Generates the leg trajectories for the two digonal pair of legs.
+    #     ext_first_pair, sw_first_pair = self.gen_signal(t, phase=0)
+    #     ext_second_pair, sw_second_pair = self.gen_signal(t, phase=np.pi)
+    #
+    #     motors_fl = self.compute_motor_angles(ext_first_pair, sw_first_pair, 0, "fl")
+    #     motors_hr = self.compute_motor_angles(ext_first_pair, sw_first_pair, 0, "hr")
+    #     motors_fr = self.compute_motor_angles(ext_second_pair, sw_second_pair, 0, "fr")
+    #     motors_hl = self.compute_motor_angles(ext_second_pair, sw_second_pair, 0, "hl")
+    #
+    #     motors_fl[0] += self.motor_offset[0]
+    #     motors_hr[0] += self.motor_offset[0]
+    #     motors_fr[0] += self.motor_offset[0]
+    #     motors_hl[0] += self.motor_offset[0]
+    #
+    #     trotting_signal = np.array([*motors_fl, *motors_hr, *motors_fr, *motors_hl])
+    #     return trotting_signal
 
-
-        Returns:
-          The desired leg x and y angle at the current time.
-        """
-        period = 1 / self._frequency
-        theta = (2 * np.pi / period * t + phase) % (2 * np.pi)
-
-        x = -self.step_length * np.cos(theta) + self.x_init
-        if theta > np.pi:
-            y = self.y_init
-        else:
-            y = self.step_height * np.sin(theta) + self.y_init
-        return x, y
-
-    def signal(self, t):
-        """Generates the trotting gait for the robot.
-
-        Args:
-          t: Current time in simulation.
-
-        Returns:
-          A numpy array of the reference leg positions.
-        """
-        # Generates the leg trajectories for the two digonal pair of legs.
-        ext_first_pair, sw_first_pair = self.gen_signal(t, phase=0)
-        ext_second_pair, sw_second_pair = self.gen_signal(t, phase=np.pi)
-
-        motors_fl = self.compute_motor_angles(ext_first_pair, sw_first_pair, 0, "fl")
-        motors_hr = self.compute_motor_angles(ext_first_pair, sw_first_pair, 0, "hr")
-        motors_fr = self.compute_motor_angles(ext_second_pair, sw_second_pair, 0, "fr")
-        motors_hl = self.compute_motor_angles(ext_second_pair, sw_second_pair, 0, "hl")
-
-        motors_fl[0] += self.motor_offset[0]
-        motors_hr[0] += self.motor_offset[0]
-        motors_fr[0] += self.motor_offset[0]
-        motors_hl[0] += self.motor_offset[0]
-
-        trotting_signal = np.array([*motors_fl, *motors_hr, *motors_fr, *motors_hl])
-        return trotting_signal
-
-    def get_time_since_reset(self):
-        return self._n_steps * self.dt
+    # def get_time_since_reset(self):
+    #     return self._n_steps * self.dt
 
     def SetLinkMass(self, link_idx, mass=0):
         """
@@ -684,16 +684,11 @@ class Solo12PybulletEnv(gym.Env):
         """
         omega = 2 * no_of_points * self._frequency
 
-        if self.test is True:
-            leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
-        else:
-            leg_m_angle_cmd = self._walkcon.run_elip(self._theta, action)
+        leg_m_angle_cmd = self._walkcon.run_elip(self._theta, self.action)
 
         self._theta = constrain_theta(omega * self.dt + self._theta)
 
         m_angle_cmd_ext = np.array(leg_m_angle_cmd)
-
-        m_vel_cmd_ext = np.zeros(8)
 
         force_visualizing_counter = 0
 
@@ -1014,25 +1009,15 @@ class Solo12PybulletEnv(gym.Env):
             joint_name_to_id[joint_info[1].decode("UTF-8")] = joint_info[0]
 
             # adding abduction
-
+        MOTOR_NAMES = [
+            "motor_hip_fl", "motor_knee_fl", "motor_abduction_fl",
+            "motor_hip_hr", "motor_knee_hr", "motor_abduction_hr",
+            "motor_hip_fr", "motor_knee_fr", "motor_abduction_fr",
+            "motor_hip_hl", "motor_knee_hl", "motor_abduction_hl"
+        ]
         motor_id_list = [joint_name_to_id[motor_name] for motor_name in MOTOR_NAMES]
 
         return joint_name_to_id, motor_id_list
-        #{
-
-    #{joint_name_to_id:
-    # "motor_hip_fl": 0,
-    # "motor_knee_fl": 1,
-    # "motor_abduction_fl": 2,
-    # "motor_hip_hr": 3,
-    # "motor_knee_hr": 4,
-    # "motor_abduction_hr": 5,
-    # "motor_hip_fr": 6,
-    # "motor_knee_fr": 7,
-    # "motor_abduction_fr": 8,
-    # "motor_hip_hl": 9,
-    # "motor_knee_hl": 10,
-    # "motor_abduction_hl": 11
 
     def ResetLeg(self, leg_id, add_constraint, standstilltorque=10):
         """
@@ -1042,7 +1027,6 @@ class Solo12PybulletEnv(gym.Env):
              # add_constraint   : bool to create constraints in lower joints of five bar leg mechanisim
              # standstilltorque : value of initial torque to set in hip and knee motors for standing condition
         """
-        leg = LEG_POSITION[leg_id]
         self._pybullet_client.resetJointState(self.solo12,
                                               self._joint_name_to_id["motor_hip_fl"],
                                               targetValue=-0.7, targetVelocity=0)
@@ -1068,51 +1052,38 @@ class Solo12PybulletEnv(gym.Env):
                                               self._joint_name_to_id["motor_knee_hr"],
                                               targetValue=-1.4, targetVelocity=0)
 
-        if self.pd_control_enabled:
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_hip_fl"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_knee_fl"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_hip_fr"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_knee_fr"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_hip_hl"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_knee_hl"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_hip_hr"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_knee_hr"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=standstilltorque, targetVelocity=0)
-        else:
-            self.set_desired_motor_angle_by_name("motor_hip_fl", desired_angle=-0.7)
-            self.set_desired_motor_angle_by_name("motor_knee_fl", desired_angle=1.4)
-
-            self.set_desired_motor_angle_by_name("motor_hip_fr", desired_angle=-0.7)
-            self.set_desired_motor_angle_by_name("motor_knee_fr", desired_angle=1.4)
-
-            self.set_desired_motor_angle_by_name("motor_hip_hl", desired_angle=0.7)
-            self.set_desired_motor_angle_by_name("motor_knee_hl", desired_angle=-1.4)
-
-            self.set_desired_motor_angle_by_name("motor_hip_hr", desired_angle=0.7)
-            self.set_desired_motor_angle_by_name("motor_knee_hr", desired_angle=-1.4)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_hip_fl"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_knee_fl"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_hip_fr"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_knee_fr"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_hip_hl"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_knee_hl"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_hip_hr"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_knee_hr"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
 
     def ResetPoseForAbd(self):
         '''
@@ -1130,25 +1101,20 @@ class Solo12PybulletEnv(gym.Env):
         self._pybullet_client.resetJointState(self.solo12,
                                               self._joint_name_to_id["motor_abduction_hr"],
                                               targetValue=0, targetVelocity=0)
-        if self.pd_control_enabled:
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_abduction_fl"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=0, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_abduction_fr"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=0, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_abduction_hl"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=0, targetVelocity=0)
-            self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
-                                                        jointIndex=self._joint_name_to_id["motor_abduction_hr"],
-                                                        controlMode=self._pybullet_client.VELOCITY_CONTROL,
-                                                        force=0, targetVelocity=0)
-        else:
-            self.set_desired_motor_angle_by_name("motor_abduction_fl", desired_angle=0)
-            self.set_desired_motor_angle_by_name("motor_abduction_fr", desired_angle=0)
-            self.set_desired_motor_angle_by_name("motor_abduction_hl", desired_angle=0)
-            self.set_desired_motor_angle_by_name("motor_abduction_hr", desired_angle=0)
+
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_abduction_fl"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_abduction_fr"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_abduction_hl"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)
+        self._pybullet_client.setJointMotorControl2(bodyIndex=self.solo12,
+                                                    jointIndex=self._joint_name_to_id["motor_abduction_hr"],
+                                                    controlMode=self._pybullet_client.VELOCITY_CONTROL,
+                                                    force=0, targetVelocity=0)

@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 from dataclasses import dataclass
 from collections import namedtuple
 from utils import solo12_kinematics
@@ -32,6 +35,7 @@ class LegData:
     phi: float = 0.0
     b: float = 1.0
     step_length: float = 0.0
+    step_height: float = 0.0
     x_shift = 0.0
     y_shift = 0.0
     z_shift = 0.0
@@ -59,6 +63,7 @@ class WalkingController:
 
         self.motor_offsets = [np.pi / 2, np.radians(0)]
         self.leg_name_to_sol_branch_Solo12 = {'fl': 1, 'fr': 1, 'bl': 0, 'br': 0}
+        self.leg_name_to_dir_Laikago = {'fl': 1, 'fr': -1, 'bl': 1, 'br': -1}
         self.Solo12_Kin = solo12_kinematics.Solo12Kinematic()
 
         self.step_length_1 = []
@@ -67,10 +72,10 @@ class WalkingController:
         self.step_length_4 = []
 
     def update_leg_theta(self, theta):
-        self.front_right.theta = np.fmod(theta + self._phase.front_right, 2 * no_of_points)
-        self.front_left.theta = np.fmod(theta + self._phase.front_left, 2 * no_of_points)
-        self.back_right.theta = np.fmod(theta + self._phase.back_right, 2 * no_of_points)
-        self.back_left.theta = np.fmod(theta + self._phase.back_left, 2 * no_of_points)
+        self.front_right.theta = constrain_theta(theta + self._phase.front_right)
+        self.front_left.theta = constrain_theta(theta + self._phase.front_left)
+        self.back_right.theta = constrain_theta(theta + self._phase.back_right)
+        self.back_left.theta = constrain_theta(theta + self._phase.back_left)
 
     def _update_leg_step_length_val(self, step_length):
         self.front_right.step_length = step_length[0]
@@ -112,7 +117,7 @@ class WalkingController:
         legs = Legs(front_right=self.front_right, front_left=self.front_left, back_right=self.back_right,
                     back_left=self.back_left)
         self.update_leg_theta(theta)
-        if test:
+        if test is False:
             leg_sl = action[0:4]
             leg_phi = action[4:8]
             self._update_leg_step_length_val(leg_sl)
@@ -145,7 +150,7 @@ class WalkingController:
                 [[np.cos(phi), 0, np.sin(phi)], [0, 1, 0], [-np.sin(phi), 0, np.cos(phi)]]) @ np.array(
                 [x, y, 0])
             leg.z = leg.z + leg.z_shift
-
+            leg.z = -1 * leg.z
             (leg.motor_knee,
              leg.motor_hip,
              leg.motor_abduction) = self.Solo12_Kin.inverse_kinematics(leg.x,
@@ -155,11 +160,13 @@ class WalkingController:
 
             leg.motor_hip = leg.motor_hip + self.motor_offsets[0]
             leg.motor_knee = leg.motor_knee + self.motor_offsets[1]
+            leg.motor_abduction = -1 * leg.motor_abduction
 
-        leg_motor_angles = [legs.front_left.motor_hip, legs.front_left.motor_knee, legs.front_left.motor_abduction,
-                            legs.back_right.motor_hip, legs.back_right.motor_knee, legs.back_right.motor_abduction,
-                            legs.front_right.motor_hip, legs.front_right.motor_knee, legs.front_right.motor_abduction,
-                            legs.back_left.motor_hip, legs.back_left.motor_knee, legs.back_left.motor_abduction]
+        leg_motor_angles = [legs.front_left.motor_hip, legs.front_left.motor_knee, legs.front_right.motor_hip,
+                            legs.front_right.motor_knee, legs.back_left.motor_hip, legs.back_left.motor_knee,
+                            legs.back_right.motor_hip, legs.back_right.motor_knee, legs.front_left.motor_abduction,
+                            legs.front_right.motor_abduction, legs.back_left.motor_abduction,
+                            legs.back_right.motor_abduction]
 
         return leg_motor_angles
 
