@@ -8,11 +8,12 @@ from collections import deque
 import pybullet
 from simulation import pybullet_client as pybullet_client
 from utils import solo12_kinematics
-
+import time
 import pybullet_data
 # import SlopedTerrainLinearPolicy.gym_sloped_terrain.envs.planeEstimation.get_terrain_normal as normal_estimator
 from utils import get_terrain_normal as normal_estimator
 
+start_time = time.time()
 LEG_POSITION = ["fl_", "bl_", "fr_", "br_"]
 KNEE_CONSTRAINT_POINT_RIGHT = [0.014, 0, 0.076]  # hip
 KNEE_CONSTRAINT_POINT_LEFT = [0.0, 0.0, -0.077]  # knee
@@ -63,7 +64,7 @@ def constrain_theta(theta):
 class Solo12PybulletEnv(gym.Env):
 
     def __init__(self,
-                 render=False,
+                 render=True,
                  on_rack=False,
                  gait='trot',
                  phase=(0, no_of_points, no_of_points, 0),
@@ -77,7 +78,7 @@ class Solo12PybulletEnv(gym.Env):
                  IMU_Noise=False,
                  test=False,
                  default_pos=(-0.23, 0, 0.3),
-                 deg=11):
+                 deg=5):
 
         # global phase
 
@@ -106,6 +107,7 @@ class Solo12PybulletEnv(gym.Env):
         self._is_render = render
         self._on_rack = on_rack
         self.rh_along_normal = 0.24
+        self.no_of_points = 100
         self.kinematic = solo12_kinematics.Solo12Kinematic()
         self.leg_name_to_sol_branch_Solo12 = {'fl': 1, 'fr': 1, 'hl': 0, 'hr': 0}
         self.seed_value = seed_value
@@ -139,7 +141,7 @@ class Solo12PybulletEnv(gym.Env):
         self.last_yaw = 0
         self._distance_limit = float("inf")
 
-        self.current_com_height = 0.7
+        self.current_com_height = 0.243
 
         # wedge_parameters
         self.wedge_start = 0.5
@@ -238,7 +240,7 @@ class Solo12PybulletEnv(gym.Env):
 
         self.plane = self._pybullet_client.loadURDF("%s/plane.urdf" % pybullet_data.getDataPath())
         self._pybullet_client.changeVisualShape(self.plane, -1, rgbaColor=[1, 1, 1, 0.9])
-        self._pybullet_client.setGravity(0, 0, -9.8)
+        self._pybullet_client.setGravity(0, 0, -9.81)
 
         if self._is_wedge:
 
@@ -256,7 +258,7 @@ class Solo12PybulletEnv(gym.Env):
                     [np.radians(self.incline_deg) * np.sin(self.incline_ori),
                      -np.radians(self.incline_deg) * np.cos(self.incline_ori), 0])
 
-                self.robot_landing_height = wedge_halfheight_offset + 0.65 + np.tan(
+                self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(
                     np.radians(self.incline_deg)) * abs(self.wedge_start)
 
                 self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
@@ -265,7 +267,7 @@ class Solo12PybulletEnv(gym.Env):
                 wedge_model_path = "/home/quyetnguyen/PycharmProjects/SOLO12/simulation/Wedges/downhill/urdf/wedge_" + str(
                     self.incline_deg) + ".urdf"
 
-                self.robot_landing_height = wedge_halfheight_offset + 0.65 + np.tan(
+                self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(
                     np.radians(self.incline_deg)) * 1.5
 
                 self.INIT_POSITION = [0, 0, self.robot_landing_height]  # [0.5, 0.7, 0.3] #[-0.5,-0.5,0.3]
@@ -281,7 +283,7 @@ class Solo12PybulletEnv(gym.Env):
 
         self._joint_name_to_id, self._motor_id_list = self.BuildMotorIdList()
 
-        self.reset_standing_position()
+        self.ResetLeg()
         if self._on_rack:
             self._pybullet_client.createConstraint(
                 self.solo12, -1, -1, -1, self._pybullet_client.JOINT_FIXED,
@@ -294,16 +296,11 @@ class Solo12PybulletEnv(gym.Env):
         self.SetFootFriction(self.friction)
 
     def reset_standing_position(self):
-        num_legs = 4
-        for i in range(num_legs):
-            self.ResetLeg(i, add_constraint=False, standstilltorque=10)
-
-        # Điều kiện đứng yên
+        self.ResetLeg()
         for i in range(300):
             self._pybullet_client.stepSimulation()
 
-        for i in range(num_legs):
-            self.ResetLeg(i, add_constraint=False, standstilltorque=0)
+        self.ResetLeg()
 
     def reset(self, **kwargs):
         """
@@ -331,7 +328,7 @@ class Solo12PybulletEnv(gym.Env):
                     [math.radians(self.incline_deg) * math.sin(self.incline_ori),
                      -math.radians(self.incline_deg) * math.cos(self.incline_ori), 0])
 
-                self.robot_landing_height = wedge_halfheight_offset + 0.65 + math.tan(
+                self.robot_landing_height = wedge_halfheight_offset + 0.28 + math.tan(
                     math.radians(self.incline_deg)) * abs(self.wedge_start)
 
                 self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
@@ -340,7 +337,7 @@ class Solo12PybulletEnv(gym.Env):
                 wedge_model_path = "home/quyetnguyen/PycharmProjects/SOLO12/simulation/Wedges/downhill/urdf/wedge_" + str(
                     self.incline_deg) + ".urdf"
 
-                self.robot_landing_height = wedge_halfheight_offset + 0.65 + math.tan(
+                self.robot_landing_height = wedge_halfheight_offset + 0.28 + math.tan(
                     math.radians(self.incline_deg)) * 1.5
 
                 self.INIT_POSITION = [0, 0, self.robot_landing_height]
@@ -382,16 +379,16 @@ class Solo12PybulletEnv(gym.Env):
                                                    textSize=2, lifeTime=life_time)
             self._pybullet_client.addUserDebugLine(point_of_force, dummy_pt, [0, 0, 1], 3, lifeTime=life_time)
 
-    def compute_motor_angles(self, x, y, z, leg_name):
-        """
-        Compute angles from x,y,z
-        :param x: x coordinate
-        :param y: y coordinate
-        :param z: z coordinate
-        :param leg_name: leg name
-        :return: a list contain motor angles
-        """
-        return list(self.kinematic.inverse_kinematics(x, y, z, self.leg_name_to_sol_branch_Solo12[leg_name]))
+    # def compute_motor_angles(self, x, y, z, leg_name):
+    #     """
+    #     Compute angles from x,y,z
+    #     :param x: x coordinate
+    #     :param y: y coordinate
+    #     :param z: z coordinate
+    #     :param leg_name: leg name
+    #     :return: a list contain motor angles
+    #     """
+    #     return list(self.kinematic.inverse_kinematics(x, y, z, self.leg_name_to_sol_branch_Solo12[leg_name]))
 
     # def gen_signal(self, t, phase):
     #     """Generates a modified sinusoidal reference leg trajectory with half-circle shape.
@@ -655,8 +652,7 @@ class Solo12PybulletEnv(gym.Env):
 
     def step(self, action):
         # self.apply_action(action)
-        if self.test is False:
-            action = self.transform_action(action)
+        action = self.transform_action(action)
         self.do_simulation(action, n_frames=self._frame_skip)
         ob = self.GetObservation()
         reward, done = self._get_reward()
@@ -781,8 +777,8 @@ class Solo12PybulletEnv(gym.Env):
             done   : return True if environment terminates
 
         '''
-        wedge_angle = self.incline_deg * PI / 180
-        robot_height_from_support_plane = 0.65
+        wedge_angle = np.radians(self.incline_deg)
+        robot_height_from_support_plane = 0.26
         pos, ori = self.GetBasePosAndOrientation()
 
         RPY_orig = self._pybullet_client.getEulerFromQuaternion(ori)
@@ -960,6 +956,14 @@ class Solo12PybulletEnv(gym.Env):
                 self.solo12, link_id, lateralFriction=foot_friction)
         return foot_friction
 
+    def set_wedge_friction(self, friction):
+        """
+        Hàm này điều chỉnh hệ số ma sát của miếng cản
+        :param friction: hệ số ma sát mong muốn của miếng cản
+        :return:
+        """
+        self._pybullet_client.changeDynamics(self.wedge, -1, lateralFriction=friction)
+
     def apply_postion_control(self, desired_angles):
         for motor_id, angle in zip(self._motor_id_list, desired_angles):
             self.set_desired_motor_angle_by_id(motor_id, angle)
@@ -1019,7 +1023,7 @@ class Solo12PybulletEnv(gym.Env):
 
         return joint_name_to_id, motor_id_list
 
-    def ResetLeg(self, leg_id, add_constraint, standstilltorque=10):
+    def ResetLeg(self):
         """
         function to reset hip and knee joints' state
         Args:

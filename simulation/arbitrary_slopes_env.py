@@ -2,7 +2,7 @@ import gym
 from gym import spaces
 import numpy as np
 from simulation import walking_controller
-from simulation import test_walking
+from simulation import walking_controller_solo12
 import random
 from collections import deque
 import pybullet
