@@ -9,7 +9,7 @@ PI = np.pi
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='19Oct1')
+    parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='24_07_5')
     parser.add_argument('--FrictionCoeff', help='foot friction value to be set', type=float, default=1.6)
     parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=11)
     parser.add_argument('--WedgeOrientation', help='wedge orientation degree of the wedge', type=float, default=0)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('--Test', help='Test without data', type=bool, default=False)
 
     args = parser.parse_args()
-    policy = np.load("experiments/" + args.PolicyDir + "/iterations/best_policy.npy")
+    policy = np.load("experiments/" + args.PolicyDir + "/iterations/matrix_20x11.npy")
     WedgePresent = True
     if args.WedgeIncline == 0:
         WedgePresent = False
