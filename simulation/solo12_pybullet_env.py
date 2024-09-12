@@ -76,8 +76,7 @@ class Solo12PybulletEnv(gym.Env):
                  downhill=False,
                  seed_value=100,
                  wedge=False,
-                 IMU_Noise=False,
-                 pd_control_enabled=True,
+                 imu_noise=False,                 pd_control_enabled=True,
                  step_length=0.08,
                  step_height=0.06,
                  motor_kp=30.5,
@@ -188,7 +187,7 @@ class Solo12PybulletEnv(gym.Env):
         self.prev_incline_vec = (0, 0, 1)
 
         self.terrain_pitch = []
-        self.add_IMU_noise = IMU_Noise
+        self.add_IMU_noise = imu_noise
 
         self.INIT_POSITION = default_pos
         self.INIT_ORIENTATION = default_ori
@@ -214,7 +213,28 @@ class Solo12PybulletEnv(gym.Env):
 
         self.Set_Randomization(default=True, idx1=2, idx2=2)
         self.height = []
-
+        # abduction_low = np.radians(-45)
+        # abduction_high = np.radians(45)
+        # other_motor_low = np.radians(-90)
+        # other_motor_high = np.radians(90)
+        #
+        # action_low = np.array([other_motor_low, other_motor_low, abduction_low,
+        #                        other_motor_low, other_motor_low, abduction_low,
+        #                        other_motor_low, other_motor_low, abduction_low,
+        #                        other_motor_low, other_motor_low, abduction_low], dtype=np.float32)
+        #
+        # action_high = np.array([other_motor_high, other_motor_high, abduction_high,
+        #                         other_motor_high, other_motor_high, abduction_high,
+        #                         other_motor_high, other_motor_high, abduction_high,
+        #                         other_motor_high, other_motor_high, abduction_high], dtype=np.float32)
+        #
+        # self.action_space = spaces.Box(low=action_low, high=action_high, dtype=np.float32)
+        #
+        # observation_dim = len(self.get_observation())
+        # observation_low = -np.inf * np.ones(observation_dim, dtype=np.float32)
+        # observation_high = np.inf * np.ones(observation_dim, dtype=np.float32)
+        #
+        # self.observation_space = spaces.Box(low=observation_low, high=observation_high, dtype=np.float32)
         if self._is_stairs:
             boxHalfLength = 0.1
             boxHalfWidth = 1

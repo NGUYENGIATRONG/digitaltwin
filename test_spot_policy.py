@@ -2,7 +2,6 @@ import simulation.spot_pybullet_env as spot
 import argparse
 from fabulous.color import blue, green, red, bold
 import numpy as np
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -23,7 +22,7 @@ if __name__ == '__main__':
     parser.add_argument('--Test', help='Test without data', type=bool, default=False)
 
     args = parser.parse_args()
-    policy = np.load("experiments/" + args.PolicyDir + "/iterations/best_policy.npy")
+    policy = np.load("experiments/" + args.PolicyDir + "/iterations/zeros12x11.npy")
 
     WedgePresent = True
 
