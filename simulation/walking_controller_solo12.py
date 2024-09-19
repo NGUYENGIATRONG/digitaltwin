@@ -63,7 +63,6 @@ class WalkingController:
 
         self.motor_offsets = [np.pi / 2, np.radians(0)]
         self.leg_name_to_sol_branch_Solo12 = {'fl': 1, 'fr': 1, 'bl': 0, 'br': 0}
-        self.leg_name_to_dir_Laikago = {'fl': 1, 'fr': -1, 'bl': 1, 'br': -1}
         self.Solo12_Kin = solo12_kinematics.Solo12Kinematic()
 
         self.step_length_1 = []
@@ -170,53 +169,53 @@ class WalkingController:
 
         return leg_motor_angles
 
-    def run_elliptical(self, theta, test):
-        """
-        Run elipse trajectory with IK
-        """
-        legs = self.initialize_leg_state(theta, action=None, test=test)
-
-        # Parameters for elip --------------------
-        step_length = 0.07
-        step_height = 0.05
-        x_center = 0.02
-        phi = np.radians(90)
-        y_center = -0.29
-        # ----------------------------------------
-
-        x = y = 0
-        for leg in legs:
-            leg_theta = (leg.theta / (2 * no_of_points)) * 2 * np.pi
-            leg.r = leg.step_length / 2
-            if self.gait_type == "trot":
-                x = -leg.r * np.cos(leg_theta) + leg.x_shift
-                if leg_theta > np.pi:
-                    flag = 0
-                else:
-                    flag = 1
-                y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
-
-            leg.x, leg.y, leg.z = np.array(
-                [[np.cos(phi), 0, np.sin(phi)], [0, 1, 0], [-np.sin(phi), 0, np.cos(phi)]]) @ np.array(
-                [x, y, 0])
-            leg.z = leg.z + leg.z_shift
-
-            (leg.motor_knee,
-             leg.motor_hip,
-             leg.motor_abduction) = self.Solo12_Kin.inverse_kinematics(leg.x,
-                                                                       leg.y,
-                                                                       leg.z,
-                                                                       self.leg_name_to_sol_branch_Solo12[leg.name])
-
-            leg.motor_hip = leg.motor_hip + self.motor_offsets[0]
-            leg.motor_knee = leg.motor_knee + self.motor_offsets[1]
-
-        leg_motor_angles = [legs.front_left.motor_hip, legs.front_left.motor_knee, legs.front_left.motor_abduction,
-                            legs.back_right.motor_hip, legs.back_right.motor_knee, legs.back_right.motor_abduction,
-                            legs.front_right.motor_hip, legs.front_right.motor_knee, legs.front_right.motor_abduction,
-                            legs.back_left.motor_hip, legs.back_left.motor_knee, legs.back_left.motor_abduction]
-
-        return leg_motor_angles
+    # def run_elliptical(self, theta, test):
+    #     """
+    #     Run elipse trajectory with IK
+    #     """
+    #     legs = self.initialize_leg_state(theta, action=None, test=test)
+    #
+    #     # Parameters for elip --------------------
+    #     step_length = 0.07
+    #     step_height = 0.05
+    #     x_center = 0.02
+    #     phi = np.radians(90)
+    #     y_center = -0.29
+    #     # ----------------------------------------
+    #
+    #     x = y = 0
+    #     for leg in legs:
+    #         leg_theta = (leg.theta / (2 * no_of_points)) * 2 * np.pi
+    #         leg.r = leg.step_length / 2
+    #         if self.gait_type == "trot":
+    #             x = -leg.r * np.cos(leg_theta) + leg.x_shift
+    #             if leg_theta > np.pi:
+    #                 flag = 0
+    #             else:
+    #                 flag = 1
+    #             y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
+    #
+    #         leg.x, leg.y, leg.z = np.array(
+    #             [[np.cos(phi), 0, np.sin(phi)], [0, 1, 0], [-np.sin(phi), 0, np.cos(phi)]]) @ np.array(
+    #             [x, y, 0])
+    #         leg.z = leg.z + leg.z_shift
+    #
+    #         (leg.motor_knee,
+    #          leg.motor_hip,
+    #          leg.motor_abduction) = self.Solo12_Kin.inverse_kinematics(leg.x,
+    #                                                                    leg.y,
+    #                                                                    leg.z,
+    #                                                                    self.leg_name_to_sol_branch_Solo12[leg.name])
+    #
+    #         leg.motor_hip = leg.motor_hip + self.motor_offsets[0]
+    #         leg.motor_knee = leg.motor_knee + self.motor_offsets[1]
+    #
+    #     leg_motor_angles = [legs.front_left.motor_hip, legs.front_left.motor_knee, legs.front_left.motor_abduction,
+    #                         legs.back_right.motor_hip, legs.back_right.motor_knee, legs.back_right.motor_abduction,
+    #                         legs.front_right.motor_hip, legs.front_right.motor_knee, legs.front_right.motor_abduction,
+    #                         legs.back_left.motor_hip, legs.back_left.motor_knee, legs.back_left.motor_abduction]
+    #
+    #     return leg_motor_angles
 
     def control_point(self, theta):
         legs = self.initialize_leg_state(theta, action=action_temp, test=True)

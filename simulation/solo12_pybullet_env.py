@@ -643,6 +643,7 @@ class Solo12PybulletEnv(gym.Env):
         # self.apply_action(action)
         action = self.transform_action(action)
         self.do_simulation(action, n_frames=self._frame_skip)
+        print(action)
         ob = self.GetObservation()
         reward, done = self._get_reward()
         return ob, reward, done, {}
@@ -668,7 +669,7 @@ class Solo12PybulletEnv(gym.Env):
         :return:
         """
         omega = 2 * self.no_of_points * self._frequency
-
+        omega = 2 * self.no_of_points * self._frequency
         leg_m_angle_cmd = self._walkcon.run_elip(self._theta, self.action)
 
         self._theta = constrain_theta(omega * self.dt + self._theta)
