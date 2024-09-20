@@ -116,9 +116,9 @@ class SpotEnv(gym.Env):
         self.wedge_halflength = 2
 
         self.test = test
-        if gait is 'trot':
+        if gait == 'trot':
             phase = [0, no_of_points, no_of_points, 0]
-        elif gait is 'walk':
+        elif gait == 'walk':
             phase = [0, no_of_points, 3 * no_of_points / 2, no_of_points / 2]
 
         self._walkcon = walking_controller.WalkingController(gait_type=gait, phase=phase)
@@ -792,6 +792,7 @@ class SpotEnv(gym.Env):
         :return: list of 3 floats
         """
         basevelocity = self._pybullet_client.getBaseVelocity(self.spot)
+        print(basevelocity)
         return basevelocity[1]
 
     def get_base_linear_velocity(self):

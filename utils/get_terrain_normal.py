@@ -204,9 +204,9 @@ def vector_method_solo12(prev_normal_vec, contact_info, motor_angles, rot_mat):
         euler_angles_of_support_plane[1] : the estimated pitch of the support plane
     """
 
-    fr = LegJointInfo("FR", motor_angles[4], motor_angles[5], motor_angles[3])
-    fl = LegJointInfo("FL", motor_angles[7], motor_angles[8], motor_angles[6])
-    br = LegJointInfo("BR", motor_angles[1], motor_angles[2], motor_angles[0])
+    fr = LegJointInfo("FR", motor_angles[1], motor_angles[2], motor_angles[0])
+    fl = LegJointInfo("FL", motor_angles[4], motor_angles[5], motor_angles[3])
+    br = LegJointInfo("BR", motor_angles[7], motor_angles[8], motor_angles[6])
     bl = LegJointInfo("BL", motor_angles[10], motor_angles[11], motor_angles[9])
 
     Legs = namedtuple('legs', 'front_right front_left back_right back_left')

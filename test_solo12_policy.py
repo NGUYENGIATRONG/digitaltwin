@@ -41,7 +41,6 @@ if __name__ == '__main__':
                        seed_value=args.seed,
                        on_rack=False,
                        gait='trot',
-                       test=args.Test,
                        default_pos=(-0.27, 0, 0.2))
 
     if args.RandomTest:
