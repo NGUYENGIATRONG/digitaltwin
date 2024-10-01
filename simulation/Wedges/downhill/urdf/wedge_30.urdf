@@ -26,7 +26,7 @@
         rpy="1.5707963267949 0 0" />
       <geometry>
         <mesh
-          filename="package://ramp_5/meshes/ramp_5.STL" scale="1.5 4.602 1.5" />
+          filename="package://ramp_5/meshes/ramp_5.STL" scale="1.5 9.6 1.5" />
       </geometry>
       <material
         name="">

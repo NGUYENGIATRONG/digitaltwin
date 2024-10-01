@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='24_07_5')
     parser.add_argument('--FrictionCoeff', help='foot friction value to be set', type=float, default=1.6)
-    parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=15)
+    parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=30)
     parser.add_argument('--WedgeOrientation', help='wedge orientation degree of the wedge', type=float, default=0)
     parser.add_argument('--MotorStrength', help='maximum motor Strength to be applied', type=float, default=7.0)
     parser.add_argument('--RandomTest', help='flag to sample test values randomly ', type=bool, default=False)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,
-                       default_pos=(-0.27, 0, 0.2))
+                       default_pos=(-1, 0, 0.2))
 
     if args.RandomTest:
         env.set_randomization(default=False)

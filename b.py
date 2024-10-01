@@ -22,7 +22,7 @@ def load_simulation():
     plane_id = p.loadURDF("plane.urdf")
 
     # Độ dốc của miếng cản
-    incline_deg = 15  # Độ dốc 30 độ
+    incline_deg = 30  # Độ dốc 30 độ
     wedge_halfheight_offset = 0.01
     incline_ori = 0  # Góc xoay
 

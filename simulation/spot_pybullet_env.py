@@ -496,16 +496,16 @@ class SpotEnv(gym.Env):
             # self.data2.append(self.support_plane_estimated_roll)
         # print(self.count)
         self.count += 1
-        if self.count > 500:
-            print("Data 1: ")
-            print(self.data1)
-            print("Data 2: ")
-            print(self.data2)
-            print("Data 3: ")
-            print(self.data3)
-            print("Data 4: ")
-            print(self.data4)
-            print("-----------------")
+        # if self.count > 500:
+        #     print("Data 1: ")
+        #     print(self.data1)
+        #     print("Data 2: ")
+        #     print(self.data2)
+        #     print("Data 3: ")
+        #     print(self.data3)
+        #     print("Data 4: ")
+        #     print(self.data4)
+        #     print("-----------------")
 
         # ----------------------------------
 
