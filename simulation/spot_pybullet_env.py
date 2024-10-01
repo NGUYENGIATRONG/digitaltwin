@@ -61,6 +61,16 @@ class SpotEnv(gym.Env):
         :param wedge: dốc
         :param imu_noise: nhiễu IMU
         :param deg:
+        render: Chỉ định có hiển thị đồ họa của môi trường mô phỏng hay không.
+        on_rack: Nếu True, robot sẽ được đặt trên giá (để thực hiện thử nghiệm không va chạm với mặt đất).
+        gait, phase: Loại dáng đi và pha của mỗi chân.
+        action_dim, end_steps: Kích thước không gian hành động và số bước tối đa cho mỗi tập.
+        stairs, downhill, wedge: Các yếu tố mô phỏng bậc thang, dốc xuống, và bề mặt dốc.
+        imu_noise: Có sử dụng nhiễu IMU (cảm biến quán tính) hay không.
+        default_pos: Vị trí mặc định của robot khi khởi tạo.
+        bullet_client: Tạo client PyBullet để kết nối với hệ thống vật lý (GUI nếu cần).
+        walking_controller: Đối tượng để điều khiển dáng đi của robot.
+        observation_space, action_space: Xác định không gian quan sát và hành động cho Gym.
         """
 
         self.new_fric_val = None
@@ -154,7 +164,7 @@ class SpotEnv(gym.Env):
 
         self.add_imu_noise = imu_noise
 
-        self.INIT_POSITION = default_pos
+        self.INIT_POSITION = list(default_pos)
         self.INIT_ORIENTATION = [0, 0, 0, 1]
         self.desired_height = 0
 
@@ -176,23 +186,23 @@ class SpotEnv(gym.Env):
         self.set_randomization(default=True, idx1=2, idx2=2)
         self.height = []
 
-        if self._is_stairs:
-            boxhalflength = 0.1
-            boxhalfwidth = 1
-            boxhalfheight = 0.015
-            sh_colbox = self._pybullet_client.createCollisionShape(self._pybullet_client.GEOM_BOX,
-                                                                   halfExtents=[boxhalflength, boxhalfwidth,
-                                                                                boxhalfheight])
-            boxorigin = 0.3
-            n_steps = 15
-            self.stairs = []
-            for i in range(n_steps):
-                step = self._pybullet_client.createMultiBody(baseMass=0, baseCollisionShapeIndex=sh_colbox,
-                                                             basePosition=[boxorigin + i * 2 * boxhalflength, 0,
-                                                                           boxhalfheight + i * 2 * boxhalfheight],
-                                                             baseOrientation=[0.0, 0.0, 0.0, 1])
-                self.stairs.append(step)
-                self._pybullet_client.changeDynamics(step, -1, lateralFriction=0.8)
+        # if self._is_stairs:
+        #     boxhalflength = 0.1  # Chiều dài bậc cầu thang
+        #     boxhalfwidth = 1  # Chiều rộng bậc cầu thang
+        #     boxhalfheight = 0.05  # Tăng chiều cao bậc cầu thang
+        #     sh_colbox = self._pybullet_client.createCollisionShape(self._pybullet_client.GEOM_BOX,
+        #                                                            halfExtents=[boxhalflength, boxhalfwidth,
+        #                                                                         boxhalfheight])
+        #     boxorigin = 0.3  # Vị trí bắt đầu của bậc cầu thang
+        #     n_steps = 15  # Số bậc cầu thang
+        #     self.stairs = []
+        #     for i in range(n_steps):
+        #         step = self._pybullet_client.createMultiBody(baseMass=0, baseCollisionShapeIndex=sh_colbox,
+        #                                                      basePosition=[boxorigin + i * 2 * boxhalflength, 0,
+        #                                                                    boxhalfheight + i * 2 * boxhalfheight],
+        #                                                      baseOrientation=[0.0, 0.0, 0.0, 1])
+        #         self.stairs.append(step)
+        #         self._pybullet_client.changeDynamics(step, -1, lateralFriction=1.0)  # Tăng độ ma sát lên 1.0
 
         # ----------------------------------
         self.count = 0
@@ -215,6 +225,26 @@ class SpotEnv(gym.Env):
         self.plane = self._pybullet_client.loadURDF("%s/plane.urdf" % pybullet_data.getDataPath())
         self._pybullet_client.changeVisualShape(self.plane, -1, rgbaColor=[1, 1, 1, 1])
         self._pybullet_client.setGravity(0, 0, -9.81)
+        if self._is_stairs:
+            boxhalflength = 0.1
+            boxhalfwidth = 1
+            boxhalfheight = 0.015
+            sh_colbox = self._pybullet_client.createCollisionShape(self._pybullet_client.GEOM_BOX,
+                                                                   halfExtents=[boxhalflength, boxhalfwidth,
+                                                                                boxhalfheight])
+            boxorigin = 0.3
+            n_steps = 15
+            self.stairs = []
+            for i in range(n_steps):
+                step = self._pybullet_client.createMultiBody(baseMass=0, baseCollisionShapeIndex=sh_colbox,
+                                                             basePosition=[boxorigin + i * 2 * boxhalflength, 0,
+                                                                           boxhalfheight + i * 2 * boxhalfheight],
+                                                             baseOrientation=[0.0, 0.0, 0.0, 1])
+                self.stairs.append(step)
+                self._pybullet_client.changeDynamics(step, -1, lateralFriction=0.8)
+
+            # Đặt vị trí khởi đầu cho robot
+            self.INIT_POSITION[2] = boxhalfheight + 0.28  # Điều chỉnh chiều cao của robot dựa trên bậc thang
 
         if self._is_wedge:
 
@@ -409,12 +439,12 @@ class SpotEnv(gym.Env):
             self.clips = clip[idxc]
 
         else:
-            avail_deg = [5, 7, 9, 11]
+            avail_deg = [5, 7, 9, 11 ,13 ,15 ,17 ,19 ,21 ,23 ,25 ,27 ,29 ,30]
             pertub_range = [0, -60, 60, -100, 100]
             self.perturb_steps = 150  # random.randint(90,200) #`Keeping fixed for now`
             self.x_f = 0
             self.y_f = pertub_range[random.randint(0, 4)]
-            self.incline_deg = avail_deg[random.randint(0, 3)]
+            self.incline_deg = avail_deg[random.randint(0, 13)]
             self.incline_ori = (np.pi / 12) * random.randint(0, 6)  # resolution of 15 degree
             self.new_fric_val = np.round(np.clip(np.random.normal(0.6, 0.08), 0.55, 0.8), 2)
             self.friction = self.set_foot_friction(self.new_fric_val)
@@ -430,8 +460,8 @@ class SpotEnv(gym.Env):
             self.incline_ori = ori + np.pi / 6 * idx2
 
         else:
-            avail_deg = [5, 7, 9, 11]
-            self.incline_deg = avail_deg[random.randint(0, 3)]
+            avail_deg = [5, 7, 9, 11 ,13 ,15 ,17 ,19 ,21 ,23 ,25 ,27 ,29 ,30]
+            self.incline_deg = avail_deg[random.randint(0, 13)]
             self.incline_ori = (np.pi / 12) * random.randint(0, 6)  # resolution of 15 degree
 
     @staticmethod

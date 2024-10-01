@@ -17,7 +17,7 @@ if __name__ == '__main__':
                         help='perturbation force to applied perpendicular to the heading direction of the robot',
                         type=float, default=0.0)
     parser.add_argument('--Downhill', help='should robot walk downhill?', type=bool, default=False)
-    parser.add_argument('--Stairs', help='test on staircase', type=bool, default=False)
+    parser.add_argument('--Stairs', help='test on staircase', type=bool, default=True)
     parser.add_argument('--AddImuNoise', help='flag to add noise in IMU readings', type=bool, default=False)
     parser.add_argument('--Test', help='Test without data', type=bool, default=False)
 
