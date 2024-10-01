@@ -26,12 +26,12 @@
         rpy="1.5707963267949 0 0" />
       <geometry>
         <mesh
-          filename="package://ramp_5/meshes/ramp_5.STL" scale="1.5 2.7 1.5" />
+          filename="package://ramp_5/meshes/ramp_5.STL" scale="1.5 8.2 1.5" />
       </geometry>
       <material
         name="">
         <color
-           rgba="0.8 0.8 0.3 1" />
+          rgba="0.8 0.8 0.3 1" />
         <texture
           filename="package://ramp_5/textures/" />
       </material>
@@ -42,7 +42,7 @@
         rpy="1.5707963267949 0 0" />
       <geometry>
         <mesh
-          filename="package://ramp_5/meshes/ramp_5.STL"  scale="1.5 2.7 1.5"/>
+          filename="package://ramp_5/meshes/ramp_5.STL"  scale="1.5 8.2 1.5"/>
       </geometry>
     </collision>
   </link>
