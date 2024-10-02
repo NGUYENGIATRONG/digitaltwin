@@ -5,9 +5,9 @@ import numpy as np
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='24_07_5')
+    parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='23.04.1.j')
     parser.add_argument('--FrictionCoeff', help='foot friction value to be set', type=float, default=1.6)
-    parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=30)
+    parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=15)
     parser.add_argument('--WedgeOrientation', help='wedge orientation degree of the wedge', type=float, default=0)
     parser.add_argument('--MotorStrength', help='maximum motor Strength to be applied', type=float, default=7.0)
     parser.add_argument('--RandomTest', help='flag to sample test values randomly ', type=bool, default=False)
@@ -17,12 +17,12 @@ if __name__ == '__main__':
                         help='perturbation force to applied perpendicular to the heading direction of the robot',
                         type=float, default=0.0)
     parser.add_argument('--Downhill', help='should robot walk downhill?', type=bool, default=False)
-    parser.add_argument('--Stairs', help='test on staircase', type=bool, default=True)
+    parser.add_argument('--Stairs', help='test on staircase', type=bool, default=False)
     parser.add_argument('--AddImuNoise', help='flag to add noise in IMU readings', type=bool, default=False)
     parser.add_argument('--Test', help='Test without data', type=bool, default=False)
 
     args = parser.parse_args()
-    policy = np.load("experiments/" + args.PolicyDir + "/iterations/zeros12x11.npy")
+    policy = np.load("experiments/" + args.PolicyDir + "/iterations/best_policy.npy")
 
     WedgePresent = True
 

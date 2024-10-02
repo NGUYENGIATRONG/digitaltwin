@@ -439,12 +439,12 @@ class SpotEnv(gym.Env):
             self.clips = clip[idxc]
 
         else:
-            avail_deg = [5, 7, 9, 11 ,13 ,15 ,17 ,19 ,21 ,23 ,25 ,27 ,29 ,30]
+            avail_deg = [5, 7, 9, 11 ]
             pertub_range = [0, -60, 60, -100, 100]
             self.perturb_steps = 150  # random.randint(90,200) #`Keeping fixed for now`
             self.x_f = 0
             self.y_f = pertub_range[random.randint(0, 4)]
-            self.incline_deg = avail_deg[random.randint(0, 13)]
+            self.incline_deg = avail_deg[random.randint(0, 3)]
             self.incline_ori = (np.pi / 12) * random.randint(0, 6)  # resolution of 15 degree
             self.new_fric_val = np.round(np.clip(np.random.normal(0.6, 0.08), 0.55, 0.8), 2)
             self.friction = self.set_foot_friction(self.new_fric_val)
@@ -460,8 +460,8 @@ class SpotEnv(gym.Env):
             self.incline_ori = ori + np.pi / 6 * idx2
 
         else:
-            avail_deg = [5, 7, 9, 11 ,13 ,15 ,17 ,19 ,21 ,23 ,25 ,27 ,29 ,30]
-            self.incline_deg = avail_deg[random.randint(0, 13)]
+            avail_deg = [5, 7, 9, 11 ]
+            self.incline_deg = avail_deg[random.randint(0, 3)]
             self.incline_ori = (np.pi / 12) * random.randint(0, 6)  # resolution of 15 degree
 
     @staticmethod
