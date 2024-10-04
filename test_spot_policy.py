@@ -17,7 +17,7 @@ if __name__ == '__main__':
                         help='perturbation force to applied perpendicular to the heading direction of the robot',
                         type=float, default=0.0)
     parser.add_argument('--Downhill', help='should robot walk downhill?', type=bool, default=False)
-    parser.add_argument('--Stairs', help='test on staircase', type=bool, default=False)
+    parser.add_argument('--Stairs', help='test on staircase', type=bool, default=True)
     parser.add_argument('--AddImuNoise', help='flag to add noise in IMU readings', type=bool, default=False)
     parser.add_argument('--Test', help='Test without data', type=bool, default=False)
 
@@ -78,6 +78,6 @@ if __name__ == '__main__':
         #     yaw_cam = 0
 
         # if i_step % 100 == 0:
-        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 90, -80, env.get_base_pos_and_orientation()[0])
+        env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
 
     print("Total reward: " + str(t_r) + ' -> ' + str(args.PolicyDir))

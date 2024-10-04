@@ -9,41 +9,36 @@ from matplotlib.animation import FuncAnimation
 from collections import deque
 
 # Hàm cập nhật đồ thị cho mỗi bước mô phỏng
-def update_plot(i):
+def update_joint_plot(i):
     action = policy.dot(state_deque[-1])
     state, r, _, angle = env.step(action)
     t_r_deque.append(t_r_deque[-1] + r)
     state_deque.append(state)
 
-    # Lấy thông tin góc từ robot
-    pos, ori = env.get_base_pos_and_orientation()
-    roll, pitch, yaw = env._pybullet_client.getEulerFromQuaternion(ori)
+    # Lấy thông tin góc của các khớp (motor angles) từ robot
+    motor_angles = env.get_motor_angles()
 
-    # Lưu các góc vào danh sách
-    roll_angles.append(np.degrees(roll))
-    pitch_angles.append(np.degrees(pitch))
-    yaw_angles.append(np.degrees(yaw))
+    # Lưu các góc khớp vào danh sách
+    for j in range(8):
+        joint_angles[j].append(np.degrees(motor_angles[j]))
 
     # Cập nhật dữ liệu đồ thị
-    roll_line.set_data(range(len(roll_angles)), roll_angles)
-    pitch_line.set_data(range(len(pitch_angles)), pitch_angles)
-    yaw_line.set_data(range(len(yaw_angles)), yaw_angles)
+    for j in range(8):
+        joint_lines[j].set_data(range(len(joint_angles[j])), joint_angles[j])
 
-    ax1.relim()
-    ax2.relim()
-    ax3.relim()
-    ax1.autoscale_view()
-    ax2.autoscale_view()
-    ax3.autoscale_view()
+    # Cập nhật trục đồ thị
+    for ax in axes:
+        ax.relim()
+        ax.autoscale_view()
 
-    return roll_line, pitch_line, yaw_line
+    return joint_lines
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='23.04.1.j')
     parser.add_argument('--FrictionCoeff', help='foot friction value to be set', type=float, default=1.6)
-    parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=19)
+    parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=15)
     parser.add_argument('--WedgeOrientation', help='wedge orientation degree of the wedge', type=float, default=0)
     parser.add_argument('--MotorStrength', help='maximum motor Strength to be applied', type=float, default=7.0)
     parser.add_argument('--RandomTest', help='flag to sample test values randomly ', type=bool, default=False)
@@ -102,33 +97,28 @@ if __name__ == '__main__':
         green('\nMotor saturation torque:'), red(env.clips)
     )
 
-    # Để lưu trữ các góc roll, pitch, yaw
-    roll_angles = []
-    pitch_angles = []
-    yaw_angles = []
+    # Để lưu trữ các góc của 8 khớp (joint angles)
+    joint_angles = [[] for _ in range(8)]
     t_r_deque = deque([0])
     state_deque = deque([state])
 
     # Cài đặt đồ thị
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 6))
+    fig, axes = plt.subplots(8, 1, figsize=(10, 16))
 
-    roll_line, = ax1.plot([], [], label='Roll Angle')
-    pitch_line, = ax2.plot([], [], label='Pitch Angle', color='orange')
-    yaw_line, = ax3.plot([], [], label='Yaw Angle', color='green')
+    joint_lines = []
+    colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray']
+    for i in range(8):
+        line, = axes[i].plot([], [], label=f'Joint {i+1} Angle', color=colors[i])
+        joint_lines.append(line)
+        axes[i].set_ylabel(f'Joint {i+1} (degrees)')
+        axes[i].legend()
 
-    ax1.set_ylabel('Roll (degrees)')
-    ax2.set_ylabel('Pitch (degrees)')
-    ax3.set_ylabel('Yaw (degrees)')
-    ax3.set_xlabel('Time Steps')
-
-    ax1.legend()
-    ax2.legend()
-    ax3.legend()
+    axes[7].set_xlabel('Time Steps')
 
     plt.tight_layout()
 
     # Tạo animation cho quá trình cập nhật
-    ani = FuncAnimation(fig, update_plot, frames=args.EpisodeLength, interval=50, blit=True)
+    ani = FuncAnimation(fig, update_joint_plot, frames=args.EpisodeLength, interval=50, blit=True)
 
     # Hiển thị đồ thị động
     plt.show()
