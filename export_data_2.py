@@ -2,6 +2,8 @@ import simulation.spot_pybullet_env as spot
 import argparse
 from fabulous.color import blue, green, red, bold
 import numpy as np
+import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from collections import deque
 from matplotlib.animation import FuncAnimation
@@ -139,3 +141,4 @@ if __name__ == '__main__':
     ax.legend()  # Hiển thị chú thích
 
     plt.show()
+    plt.pause(0.001)

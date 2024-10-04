@@ -120,7 +120,7 @@ class SpotEnv(gym.Env):
             phase = [0, no_of_points, 3 * no_of_points / 2, no_of_points / 2]
 
         self._walkcon = walking_controller.WalkingController(gait_type=gait, phase=phase)
-        self.test_walking = test_walking.TestWalking(gait_type=gait, phase=phase)
+        # self.test_walking = test_walking.TestWalking(gait_type=gait, phase=phase)
 
         self.test = test
 
