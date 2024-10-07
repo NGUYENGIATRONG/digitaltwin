@@ -371,7 +371,7 @@ class SpotEnv(gym.Env):
         self._n_steps = 0
         return self.get_observation()
 
-    def apply_ext_force(self, x_f, y_f, link_index=1, visulaize=False, life_time=0.01):
+    def apply_ext_force(self, x_f, y_f,  link_index=1, visulaize=True, life_time=0.01):
         """
         Hàm áp dụng lực ngoại lực lên robot
         :param x_f: ngooại lực theo hướng x
@@ -381,7 +381,7 @@ class SpotEnv(gym.Env):
         :param life_time: thời gian tồn tại của việc hiển thị
         :return:
         """
-        force_applied = [x_f, y_f, 0]
+        force_applied = [x_f, y_f, -50]
         self._pybullet_client.applyExternalForce(self.spot, link_index, forceObj=[x_f, y_f, 0], posObj=[0, 0, 0],
                                                  flags=self._pybullet_client.LINK_FRAME)
         f_mag = np.linalg.norm(np.array(force_applied))
