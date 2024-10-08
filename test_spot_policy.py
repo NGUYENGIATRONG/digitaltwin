@@ -77,7 +77,7 @@ if __name__ == '__main__':
         t_r += r
 
         # Áp dụng lực ngoại lực 50N hướng xuống robot (áp dụng vào link chính)
-        env.apply_ext_force(0, 0, link_index=0)  # link_index=0 giả sử là thân chính của robot
+        env.apply_ext_force(0, 0,visulaize=True)  # link_index=0 giả sử là thân chính của robot
 
         # Đặt lại camera sau mỗi bước
         # env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])

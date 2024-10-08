@@ -371,31 +371,37 @@ class SpotEnv(gym.Env):
         self._n_steps = 0
         return self.get_observation()
 
-    def apply_ext_force(self, x_f, y_f,  link_index=1, visulaize=True, life_time=0.01):
+    def apply_ext_force(self, x_f, y_f, visulaize=True, life_time=0.5):
         """
-        Hàm áp dụng lực ngoại lực lên robot
-        :param x_f: ngooại lực theo hướng x
-        :param y_f: ngooại lực theo hướng y
-        :param link_index: chỉ số link của robot mà lực cần được áp dụng
+        Hàm áp dụng lực ngoại lực lên thân robot.
+        :param x_f: lực theo hướng x
+        :param y_f: lực theo hướng y
         :param visulaize: bool, có hiển thị lực ngoại lực bằng biểu tượng mũi tên hay không
         :param life_time: thời gian tồn tại của việc hiển thị
         :return:
         """
+
+        # Lực áp dụng
         force_applied = [x_f, y_f, -50]
-        self._pybullet_client.applyExternalForce(self.spot, link_index, forceObj=[x_f, y_f, 0], posObj=[0, 0, 0],
-                                                 flags=self._pybullet_client.LINK_FRAME)
+
+        # Lấy vị trí của cơ sở robot
+        base_position = self._pybullet_client.getBasePositionAndOrientation(self.spot)[0]
+
+        # Áp dụng lực
+        self._pybullet_client.applyExternalForce(self.spot, -1, forceObj=[x_f, y_f, 0], posObj=base_position,
+                                                 flags=self._pybullet_client.WORLD_FRAME)
+
         f_mag = np.linalg.norm(np.array(force_applied))
 
         if visulaize and f_mag != 0.0:
-            point_of_force = self._pybullet_client.getLinkState(self.spot, link_index)[0]
-
+            # Hiển thị lực
             lam = 1 / (2 * f_mag)
-            dummy_pt = [point_of_force[0] - lam * force_applied[0],
-                        point_of_force[1] - lam * force_applied[1],
-                        point_of_force[2] - lam * force_applied[2]]
+            dummy_pt = [base_position[0] - lam * force_applied[0],
+                        base_position[1] - lam * force_applied[1],
+                        base_position[2] - lam * force_applied[2]]
             self._pybullet_client.addUserDebugText(str(round(f_mag, 2)) + " N", dummy_pt, [0.13, 0.54, 0.13],
                                                    textSize=2, lifeTime=life_time)
-            self._pybullet_client.addUserDebugLine(point_of_force, dummy_pt, [0, 0, 1], 3, lifeTime=life_time)
+            self._pybullet_client.addUserDebugLine(base_position, dummy_pt, [0, 0, 1], 3, lifeTime=life_time)
 
     def get_link_mass(self, link_idx):
         """
