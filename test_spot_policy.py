@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # Thêm biến lưu lực ngẫu nhiên và bước đếm
     step_counter = 0
     random_force = [0, 0]  # Lực ngẫu nhiên ban đầu là 0
-    force_interval = 1000  # Mỗi 30000 bước thì thay đổi lực ngẫu nhiên
+    force_interval = 1  # Mỗi 30000 bước thì thay đổi lực ngẫu nhiên
 
     for i_step in range(args.EpisodeLength):
         action = policy.dot(state)
@@ -80,12 +80,14 @@ if __name__ == '__main__':
         t_r += r
         if step_counter % force_interval == 0:
             # Tạo lực ngẫu nhiên mới sau mỗi 10 bước
-            random_force = [np.random.uniform(-50, 50), np.random.uniform(-50, 50)]
+            random_force = [np.random.uniform(-0, 0), np.random.uniform(0, 0)]
+            env.apply_ext_force(random_force[0], random_force[1],
+                                visulaize=True)  # link_index=0 giả sử là thân chính của robot
         step_counter +=1
         # Áp dụng lực ngoại lực 50N hướng xuống robot (áp dụng vào link chính)
         env.apply_ext_force(random_force[0], random_force[1], visulaize=True)  # link_index=0 giả sử là thân chính của robot
 
         # Đặt lại camera sau mỗi bước
-        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
+        env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
 
     print("Total reward: " + str(t_r) + ' -> ' + str(args.PolicyDir))

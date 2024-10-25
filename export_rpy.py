@@ -14,7 +14,8 @@ def update_plot(i):
     state, r, _, angle = env.step(action)
     t_r_deque.append(t_r_deque[-1] + r)
     state_deque.append(state)
-
+    env.apply_ext_force(0,0,visulaize=True)
+    env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
     # Lấy thông tin góc từ robot
     pos, ori = env.get_base_pos_and_orientation()
     roll, pitch, yaw = env._pybullet_client.getEulerFromQuaternion(ori)

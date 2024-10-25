@@ -382,13 +382,13 @@ class SpotEnv(gym.Env):
         """
 
         # Lực áp dụng
-        force_applied = [x_f, y_f, -50]
+        force_applied = [x_f, y_f, -10]
 
         # Lấy vị trí của cơ sở robot
         base_position = self._pybullet_client.getBasePositionAndOrientation(self.spot)[0]
 
         # Áp dụng lực
-        self._pybullet_client.applyExternalForce(self.spot, -1, forceObj=[x_f, y_f, 0], posObj=base_position,
+        self._pybullet_client.applyExternalForce(self.spot, -1, forceObj=[x_f, y_f, -10], posObj=base_position,
                                                  flags=self._pybullet_client.WORLD_FRAME)
 
         f_mag = np.linalg.norm(np.array(force_applied))
