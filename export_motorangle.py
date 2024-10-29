@@ -16,7 +16,7 @@ def update_joint_data():
 
     # Lưu các góc khớp vào danh sách (chuyển từ radian sang độ)
     for j in range(8):
-        joint_angles[j].append(np.degrees(motor_angles[j]))  # Lưu giá trị góc khớp theo độ
+        joint_angles[j].append(motor_angles[j])  # Lưu trực tiếp nếu cần radian
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -38,7 +38,7 @@ if __name__ == '__main__':
     parser.add_argument('--Test', help='Test without data', type=bool, default=False)
 
     args = parser.parse_args()
-    policy = np.load("experiments/" + args.PolicyDir + "/iterations/best_policy.npy")
+    policy = np.load("experiments/" + args.PolicyDir + "/iterations/zeros12x11.npy")
 
     WedgePresent = True
 

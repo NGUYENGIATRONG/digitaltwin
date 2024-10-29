@@ -16,7 +16,7 @@ class Serial2RKin:
         q1_temp = None
         [l1, l2] = self.link_lengths
 
-        # Check if the end-effector point lies in the workspace of the manipulator
+        # Đầu tiên, kiểm tra xem vị trí đầu cuối có nằm trong không gian làm việc của bộ điều khiển hay không:
         if ((x ** 2 + y ** 2) > (l1 + l2) ** 2) or ((x ** 2 + y ** 2) < (l1 - l2) ** 2):
             print("Point is outside the workspace")
             valid = False
@@ -26,13 +26,13 @@ class Serial2RKin:
         b = 2 * l2 * y
         c = l1 ** 2 - l2 ** 2 - x ** 2 - y ** 2
 
-        if branch == 1:
-            q1_temp = np.arctan2(y, x) + np.arccos(-c / np.sqrt(a ** 2 + b ** 2))
-        elif branch == 2:
-            q1_temp = np.arctan2(y, x) - np.arccos(-c / np.sqrt(a ** 2 + b ** 2))
+        if branch == 1:#nhanh1
+            q1_temp = np.arctan2(y, x) + np.arccos(-c / np.sqrt(a ** 2 + b ** 2))##phi2
+        elif branch == 2:#nhanh2
+            q1_temp = np.arctan2(y, x) - np.arccos(-c / np.sqrt(a ** 2 + b ** 2))##phi4
 
-        q[0] = np.arctan2(y - l2 * np.sin(q1_temp), x - l2 * np.cos(q1_temp))
-        q[1] = q1_temp - q[0]
+        q[0] = np.arctan2(y - l2 * np.sin(q1_temp), x - l2 * np.cos(q1_temp))##phi3 neu la nhanh 2 phi 1 neu la nhanh 1
+        q[1] = q1_temp - q[0] #phi2-phi1 or phi4-phi3
         valid = True
 
         return valid, q
@@ -62,7 +62,7 @@ class SpotKinematics:
     def __init__(self,
                  base_pivot1=(0, 0),
                  base_pivot2=(0.05, 0),
-                 link_parameters=(0.11, 0.25, 0.11, 0.2)):
+                 link_parameters=(0.11, 0.25, 0.11, 0.2)):#0.25=l2+l3
         self.base_pivot1 = base_pivot1
         self.base_pivot2 = base_pivot2
         self.link_parameters = link_parameters
@@ -82,6 +82,8 @@ class SpotKinematics:
         leg2 = Serial2RKin(self.base_pivot2, [l3, l4])
 
         valid1, q1 = leg1.inverse_kinematics(ee_pos, branch=1)
+        #q1[0]=phi1,q1[1]=phi2-phi1
+        #q2[0]=phi3,q2[1]=phi4-phi3
         if not valid1:
             return valid, q
 
@@ -91,7 +93,7 @@ class SpotKinematics:
             return valid, q
 
         valid = True
-        q = [q1[0], q2[0], q1[0] + q1[1], q2[0] + q2[1]]
+        q = [q1[0], q2[0], q1[0] + q1[1], q2[0] + q2[1]]#[phi1,phi3,phi2,phi4]
         return valid, q
 
     def inverse_kinematics(self, x, y, z):
@@ -103,7 +105,7 @@ class SpotKinematics:
         :return:
         """
         motor_abduction = np.arctan2(z, -y)
-        _, [motor_hip, motor_knee, _, _] = self.inverse2d([x, y])
+        _, [motor_hip, motor_knee, _, _] = self.inverse2d([x, y])#motorhip=phi1, motor knee =phi3
 
         if motor_hip > 0:
             motor_hip = -2 * np.pi + motor_hip
