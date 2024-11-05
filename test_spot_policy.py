@@ -79,18 +79,6 @@ if __name__ == '__main__':
         state, r, _, angle = env.step(action)
         t_r += r
         motor_angles = env.get_motor_angles()
-
-        # In trạng thái ban đầu của khớp động cơ
-        print(bold(blue("\nInitial Motor Angles (in radians):\n")), motor_angles)
-
-        # Nếu bạn muốn in ở đơn vị độ, bạn có thể thêm:
-        motor_angles_degrees = np.degrees(motor_angles)
-        print(bold(blue("\nInitial Motor Angles (in degrees):\n")), motor_angles_degrees)
-        if step_counter % force_interval == 0:
-            # Tạo lực ngẫu nhiên mới sau mỗi 10 bước
-            random_force = [np.random.uniform(-0, 0), np.random.uniform(0, 0)]
-            env.apply_ext_force(random_force[0], random_force[1],link_index=3,
-                                visulaize=True)  # link_index=0 giả sử là thân chính của robot
         step_counter +=1
         # Áp dụng lực ngoại lực 50N hướng xuống robot (áp dụng vào link chính)
         # env.apply_ext_force(random_force[0], random_force[1], visulaize=True)  # link_index=0 giả sử là thân chính của robot
