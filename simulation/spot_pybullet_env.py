@@ -573,7 +573,7 @@ class SpotEnv(gym.Env):
 
         return foot_contact_info
 
-    def step(self, action):
+    def step(self, step_length):
         """
         Hàm để thực hiện một bước trong môi trường
         :param action: mảng các giá trị hành động
@@ -584,9 +584,9 @@ class SpotEnv(gym.Env):
         4. bất kỳ thông tin nào về môi trường (sẽ được thêm sau)
         """
 
-        if self.test is False:
-            action = self.transform_action(action)
-        self.do_simulation(action, n_frames=self._frame_skip)
+        # if self.test is False:
+        #     action = self.transform_action(action)
+        self.do_simulation(step_length, n_frames=self._frame_skip)
         ob = self.get_observation()
         reward, done = self._get_reward()
         return ob, reward, done, {}
@@ -603,7 +603,7 @@ class SpotEnv(gym.Env):
         radial_v = np.sqrt(current_v[0] ** 2 + current_v[1] ** 2)
         return radial_v, current_w
 
-    def do_simulation(self, action, n_frames):
+    def do_simulation(self, step_length, n_frames):
         """
         Chuyển đổi các tham số hành động thành các lệnh động cơ tương ứng
         với sự hỗ trợ của một bộ điều khiển quỹ đạo elip
@@ -616,7 +616,7 @@ class SpotEnv(gym.Env):
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
         else:
-            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, action)
+            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length)
 
         self._theta = constrain_theta(omega * self.dt + self._theta)
 

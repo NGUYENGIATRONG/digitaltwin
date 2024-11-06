@@ -4,6 +4,7 @@ import argparse
 from fabulous.color import blue, green, red, bold
 import numpy as np
 
+step_length =[0.08,0.08,0.08,0.08]
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -76,7 +77,7 @@ if __name__ == '__main__':
 
     for i_step in range(args.EpisodeLength):
         action = policy.dot(state)
-        state, r, _, angle = env.step(action)
+        state, r, _, angle = env.step(step_length)
         t_r += r
         motor_angles = env.get_motor_angles()
         step_counter +=1

@@ -97,7 +97,7 @@ class WalkingController:
         self.back_right.y_shift = y_shift[2]
         self.back_left.y_shift = y_shift[3]
 
-    def initialize_leg_state(self, theta, action, test=False):
+    def initialize_leg_state(self, theta, step_length, test=False):
         """
         Khởi tạo tất cả các tham số của các quỹ đạo chân
 
@@ -113,10 +113,10 @@ class WalkingController:
         self.update_leg_theta(theta)
 
         if test is False:
-            leg_sl = action[:4]  # fr fl br bl
+            leg_sl = step_length # fr fl br bl
 
             self._update_leg_step_length_val(leg_sl)
-            self.initialize_elipse_shift(action[4:8], action[8:12])
+            # self.initialize_elipse_shift(action[4:8], action[8:12])
 
         return legs
 
@@ -131,7 +131,7 @@ class WalkingController:
         self.back_right.step_length = step_length[2]
         self.back_left.step_length = step_length[3]
 
-    def run_elliptical_traj_spot(self, theta, action):
+    def run_elliptical_traj_spot(self, theta, step_length):
         """
         Bộ điều khiển quỹ đạo bán-ellipse
 
@@ -139,7 +139,7 @@ class WalkingController:
         :param action: các tham số điều chỉnh quỹ đạo được dự đoán bởi policy
         :return: danh sách vị trí của động cơ cho hành động mong muốn
         """
-        legs = self.initialize_leg_state(theta, action)
+        legs = self.initialize_leg_state(theta, step_length)
 
         x_center = 0.02
         y_center = -0.29
