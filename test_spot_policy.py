@@ -85,6 +85,6 @@ if __name__ == '__main__':
         # env.apply_ext_force(random_force[0], random_force[1], visulaize=True)  # link_index=0 giả sử là thân chính của robot
 
         # Đặt lại camera sau mỗi bước
-        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
+        env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
 
     print("Total reward: " + str(t_r) + ' -> ' + str(args.PolicyDir))
