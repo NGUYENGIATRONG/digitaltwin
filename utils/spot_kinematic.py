@@ -137,3 +137,8 @@ class SpotKinematics:
 
         vaild = True
         return vaild, ee_pos
+kinematic = SpotKinematics()
+theta1 = np.radians(-156.01)
+theta2 = np.radians(-23.68)
+q = [theta1, theta2]
+print(kinematic.forward_kinematics(q))

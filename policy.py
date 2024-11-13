@@ -1,9 +1,23 @@
 import numpy as np
-mang1="/home/trong/PycharmProjects/pythonProject/joint_angle_1.npy"
-mang2="/home/trong/PycharmProjects/pythonProject/joint_angle_2.npy"
-data1=np.load(mang1)
-data2=np.load(mang2)
-data_in_degrees = data * (180 / np.pi)
-np.set_printoptions(threshold=np.inf)
 
-print(data_in_degrees)
+
+def find_initial_coordinates(xnew, ynew, angle_deg=30):
+    # Chuyển đổi góc từ độ sang radian
+    angle_rad = np.radians(angle_deg)
+
+    # Ma trận xoay ngược (30 độ)
+    rotation_matrix_inverse = np.array([
+        [np.cos(angle_rad), np.sin(angle_rad)],
+        [-np.sin(angle_rad), np.cos(angle_rad)]
+    ])
+
+    # Tọa độ sau khi xoay
+    new_coords = np.array([xnew, ynew])
+
+    # Tính toán tọa độ ban đầu
+    initial_coords = np.dot(rotation_matrix_inverse, new_coords)
+    return initial_coords[0], initial_coords[1]
+
+
+# Nhập tọa độ mới từ bàn phím
+

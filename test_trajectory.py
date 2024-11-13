@@ -1,13 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import spot_kinematic  # Giả sử bạn có module này như đã nêu trước đó
-
+import policy as po
 spot = spot_kinematic.SpotKinematics()
 base1 = spot.base_pivot1
 base2 = spot.base_pivot2
-[l1, l2, l3, l4] = spot.link_parameters#0.11, 0.25, 0.11, 0.2
+[l1, l2, l3, l4] = spot.link_parameters  # 0.11, 0.25, 0.11, 0.2
 pi = np.pi
 
+
+# Hàm vẽ chân robot
 def draw(p1, p2):
     valid, [q1, q2, q3, q4] = spot.inverse2d(ee_pos=[p1, p2])
     if not valid:
@@ -19,7 +21,7 @@ def draw(p1, p2):
 
     # Tọa độ khớp
     x_00, y_00 = 0, 0
-    x_01, y_01 = base2[0], 0#0.05 0
+    x_01, y_01 = base2[0], 0  # 0.05, 0
 
     x1, y1 = l1 * np.cos(q1), l1 * np.sin(q1)
     x2, y2 = x1 + l2 * np.cos(q3), y1 + l2 * np.sin(q3)
@@ -46,17 +48,22 @@ def draw(p1, p2):
     plt.pause(0.000000001)
     plt.clf()
 
+
 # Tạo hình elip ban đầu
 no_of_points = 100
 step_length = 0.1
 radius = step_length / 2
-theta = 0
 y_center = -0.26
 foot_clearance = 0.05
-x_shift = 0.01
+x_shift = 0.0
 y_shift = 0
 count = 5
 
+# Tọa độ bắt đầu của elip (nhập tọa độ ban đầu)
+x_start = float(input("Nhập giá trị x_start: "))  # Nhập giá trị x_start
+y_start = float(input("Nhập giá trị y_start: "))  # Nhập giá trị y_start
+x_start,y_start=po.find_initial_coordinates(x_start,y_start)
+x_start=x_start+0.05
 # Danh sách lưu trữ các điểm của elip
 x = []
 y = []
@@ -74,21 +81,28 @@ rotation_matrix = np.array([
 # Tạo và xoay các điểm của elip
 rotated_x = []
 rotated_y = []
+theta = 0
 for _ in range(count * 80):
-    leg_theta = (theta / (2 * no_of_points)) * 2 * np.pi
+    leg_theta = (theta / (2 * no_of_points)) * 2 * np.pi#=0
 
-    t = -radius * np.cos(leg_theta) + x_shift#dao động từ -radius đến radius
+    # Cập nhật t và z (dựa trên điểm bắt đầu)
+    t = x_start - radius * np.cos(leg_theta) + x_shift  # Điểm bắt đầu cộng với dao động của elip x_start - 0.05
     x.append(t)
+
+    # Điều kiện để xác định chiều cao z
     if leg_theta > np.pi:
         flag = 0
     else:
         flag = 1
-    z = foot_clearance * np.sin(leg_theta) * flag + y_center + y_shift
-    #foot_clearance độ cao tối đa mà chân robot có thể nâng lên khi di chuyển. Nó xác định khoảng cách nâng chân khỏi mặt đất.
+
+    # Tính z (foot clearance có thể thay đổi theo thời gian)
+    z = foot_clearance * np.sin(leg_theta) * flag + y_start + y_shift  # Điểm bắt đầu cộng với dao động của elip  0.05*0
     y.append(z)
 
     # Xoay điểm (t, z) bằng ma trận xoay
     rotated_point = np.dot(rotation_matrix, np.array([t, z]))
+    print(rotated_point)
+    print([t,z])
     rotated_x.append(rotated_point[0])
     rotated_y.append(rotated_point[1])
 
