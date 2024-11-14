@@ -1,38 +1,47 @@
 """ Kinematic for SpotDog - NNQ """
+from math import atan2
+import  math
 import numpy as np
+from numpy.ma.core import arctan
 
 
 class Serial2RKin:
     def __init__(self,
                  base_pivot=(0, 0),
-                 link_lengths=(0.3, 0.3)):
+                 link_lengths=(0.11, 0.11, 0.2, 0.2, 0.05)):
         self.link_lengths = link_lengths
         self.base_pivot = base_pivot
 
     def inverse_kinematics(self, ee_pos, branch=1):
         q = np.zeros(2, float)
-        x_y_points = np.array(ee_pos) - np.array(self.base_pivot)
+        x_y_points = np.array(ee_pos)
         [x, y] = x_y_points.tolist()
-        q1_temp = None
-        [l1, l2] = self.link_lengths
-
+        # q1_temp = None
+        [l1, l2, l3, l4, d] = self.link_lengths
+        r1 = np.sqrt(x ** 2 + y ** 2)
+        r2 = np.sqrt((x - d) ** 2 + y ** 2)
+        # print(2 * l1 * r1)
+        # print(2 * l2 * r2)
+        # print(l2 ** 2 + r2 ** 2 - l4 ** 2)
         # Đầu tiên, kiểm tra xem vị trí đầu cuối có nằm trong không gian làm việc của bộ điều khiển hay không:
-        if ((x ** 2 + y ** 2) > (l1 + l2) ** 2) or ((x ** 2 + y ** 2) < (l1 - l2) ** 2):
+        if (l1 ** 2 + r1 ** 2 - l3 ** 2 > 2 * l1 * r1) or ((2 * l2 * r2) < (l2 ** 2 + r2 ** 2 - l4 ** 2)):
             print("Point is outside the workspace")
             valid = False
             return valid, q
 
-        a = 2 * l2 * x
-        b = 2 * l2 * y
-        c = l1 ** 2 - l2 ** 2 - x ** 2 - y ** 2
+        # c = l1 ** 2 - l2 ** 2 - x ** 2 - y ** 2
 
-        if branch == 1:#nhanh1
-            q1_temp = np.arctan2(y, x) + np.arccos(-c / np.sqrt(a ** 2 + b ** 2))##phi2
-        elif branch == 2:#nhanh2
-            q1_temp = np.arctan2(y, x) - np.arccos(-c / np.sqrt(a ** 2 + b ** 2))##phi4
-
-        q[0] = np.arctan2(y - l2 * np.sin(q1_temp), x - l2 * np.cos(q1_temp))##phi3 neu la nhanh 2 phi 1 neu la nhanh 1
-        q[1] = q1_temp - q[0] #phi2-phi1 or phi4-phi3
+        # if branch == 1:#nhanh1
+        #     q1_temp = np.arctan2(y, x) + np.arccos(-c / np.sqrt(a ** 2 + b ** 2))##phi2
+        # elif branch == 2:#nhanh2
+        #     q1_temp = np.arctan2(y, x) - np.arccos(-c / np.sqrt(a ** 2 + b ** 2))##phi4
+        #
+        # q[0] = np.arctan2(y - l2 * np.sin(q1_temp), x - l2 * np.cos(q1_temp))##phi3 neu la nhanh 2 phi 1 neu la nhanh 1
+        # q[1] = q1_temp - q[0] #phi2-phi1 or phi4-phi3
+        cos_theta1 = (l1 ** 2 + r1 ** 2 - l3 ** 2) / (2 * l1 * r1)
+        q[0] = atan2(y, x) - math.acos(cos_theta1)
+        cos_theta2 = (l2 ** 2 + r2 ** 2 - l4 ** 2) / (2 * l2 * r2)
+        q[1] = atan2(y, x - d) + math.acos(cos_theta2)
         valid = True
 
         return valid, q
@@ -62,7 +71,7 @@ class SpotKinematics:
     def __init__(self,
                  base_pivot1=(0, 0),
                  base_pivot2=(0.05, 0),
-                 link_parameters=(0.11, 0.25, 0.11, 0.2)):#0.25=l2+l3
+                 link_parameters=(0.11, 0.11, 0.2, 0.2, 0.05)):#0.25=l2+l3
         self.base_pivot1 = base_pivot1
         self.base_pivot2 = base_pivot2
         self.link_parameters = link_parameters
@@ -74,26 +83,27 @@ class SpotKinematics:
         :return:
         """
         valid = False
-        q = np.zeros(4)
-        [l1, l2, l3, l4] = self.link_parameters
-        [l, _] = self.base_pivot2
+        q = np.zeros(2)
+        [l1, l2, l3, l4, d] = self.link_parameters
+        # [l, _] = self.base_pivot2
 
-        leg1 = Serial2RKin(self.base_pivot1, [l1, l2])
-        leg2 = Serial2RKin(self.base_pivot2, [l3, l4])
+        leg = Serial2RKin(self.base_pivot1, [l1, l2 , l3, l4 , d ])
+        # leg2 = Serial2RKin(self.base_pivot2, [l3, l4])
 
-        valid1, q1 = leg1.inverse_kinematics(ee_pos, branch=1)
+        valid1, q1 = leg.inverse_kinematics(ee_pos)
         #q1[0]=phi1,q1[1]=phi2-phi1
         #q2[0]=phi3,q2[1]=phi4-phi3
         if not valid1:
-            return valid, q
+            return valid, q1
 
-        ee_pos_new = [ee_pos[0] - l * np.cos(q1[0] + q1[1]), ee_pos[1] - l * np.sin(q1[0] + q1[1])]
-        valid2, q2 = leg2.inverse_kinematics(ee_pos_new, branch=2)
-        if not valid2:
-            return valid, q
+        # ee_pos_new = [ee_pos[0] - l * np.cos(q1[0] + q1[1]), ee_pos[1] - l * np.sin(q1[0] + q1[1])]
+        # valid2, q2 = leg2.inverse_kinematics(ee_pos_new, branch=2)
+        # if not valid2:
+        #     return valid, q
 
         valid = True
-        q = [q1[0], q2[0], q1[0] + q1[1], q2[0] + q2[1]]#[phi1,phi3,phi2,phi4]
+        # q = [q1[0], q1[0], q1[0] + q1[1], q2[0] + q2[1]]#[phi1,phi3,phi2,phi4]
+        q = [q1[0],q1[1]]
         return valid, q
 
     def inverse_kinematics(self, x, y, z):
@@ -105,7 +115,7 @@ class SpotKinematics:
         :return:
         """
         motor_abduction = np.arctan2(z, -y)
-        _, [motor_hip, motor_knee, _, _] = self.inverse2d([x, y])#motorhip=phi1, motor knee =phi3
+        _, [motor_hip, motor_knee] = self.inverse2d([x, y])#motorhip=phi1, motor knee =phi3
 
         if motor_hip > 0:
             motor_hip = -2 * np.pi + motor_hip
@@ -118,7 +128,7 @@ class SpotKinematics:
         :param q: [hip_angle, knee_angle]
         :return: end-effector position
         """
-        [l1, _, _, l2] = self.link_parameters
+        [l1, _, _, l2, _] = self.link_parameters
         [l, _] = self.base_pivot2
 
         a = (l1 * np.cos(q[0]) - l1 * np.cos(q[1]) - l) / l2
@@ -140,5 +150,10 @@ class SpotKinematics:
 kinematic = SpotKinematics()
 theta1 = np.radians(-156.01)
 theta2 = np.radians(-23.68)
-q = [theta1, theta2]
-print(kinematic.forward_kinematics(q))
+x = 0.025
+y = -0.2
+z = 0
+ee_pos = [x ,y, z]
+# q = [theta1, theta2]
+print(np.degrees(kinematic.inverse_kinematics(x,y,z)))
+# print(kinematic.forward_kinematics(q))

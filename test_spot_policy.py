@@ -5,6 +5,15 @@ from fabulous.color import blue, green, red, bold
 import numpy as np
 
 step_length =[0.08,0.08,0.08,0.08]
+mang1 = np.full(5000,0)
+mang2 = np.full(5000,0)
+mang3 = np.full(5000,0)
+mang4 = np.full(5000,0)
+mang5 = np.full(5000,0)
+mang6 = np.full(5000,0)
+mang7 = np.full(5000,0)
+mang8 = np.full(5000,0)
+motor_angles_list = [mang1,mang2,mang3,mang4,mang5,mang6,mang7,mang8]
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -39,7 +48,7 @@ if __name__ == '__main__':
                        stairs=args.Stairs,
                        downhill=args.Downhill,
                        seed_value=args.seed,
-                       on_rack=False,
+                       on_rack=True,
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,
@@ -76,15 +85,21 @@ if __name__ == '__main__':
     force_interval = 1  # Mỗi 30000 bước thì thay đổi lực ngẫu nhiên
 
     for i_step in range(args.EpisodeLength):
-        action = policy.dot(state)
-        state, r, _, angle = env.step(step_length)
-        t_r += r
-        motor_angles = env.get_motor_angles()
-        step_counter +=1
-        # Áp dụng lực ngoại lực 50N hướng xuống robot (áp dụng vào link chính)
-        # env.apply_ext_force(random_force[0], random_force[1], visulaize=True)  # link_index=0 giả sử là thân chính của robot
+        # Lấy danh sách góc động cơ tại bước `i_step`
+        motor_angles = [motor_angles_list[i][i_step] for i in
+                        range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
 
-        # Đặt lại camera sau mỗi bước
-        env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
+        # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
+        state, r, done, info = env.step(motor_angles)
+        t_r += r
+
+        # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
+        print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
+
+        step_counter += 1
+
+        # Điều kiện kết thúc nếu cần thiết
+        if done:
+            break
 
     print("Total reward: " + str(t_r) + ' -> ' + str(args.PolicyDir))

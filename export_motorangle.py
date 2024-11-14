@@ -3,11 +3,11 @@ import argparse
 from fabulous.color import blue, green, red, bold
 import numpy as np
 from collections import deque
-
+step_length =[0.08,0.08,0.08,0.08]
 # Hàm cập nhật dữ liệu góc khớp cho mỗi bước mô phỏng
 def update_joint_data():
-    action = policy.dot(state_deque[-1])  # Tính toán hành động từ policy và trạng thái hiện tại
-    state, r, _, angle = env.step(action)  # Bước mô phỏng
+    # action = policy.dot(state_deque[-1])  # Tính toán hành động từ policy và trạng thái hiện tại
+    state, r, _, angle = env.step(step_length)  # Bước mô phỏng
     t_r_deque.append(t_r_deque[-1] + r)  # Cập nhật tổng reward
     state_deque.append(state)  # Cập nhật trạng thái
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     parser.add_argument('--MotorStrength', help='maximum motor Strength to be applied', type=float, default=7.0)
     parser.add_argument('--RandomTest', help='flag to sample test values randomly', type=bool, default=False)
     parser.add_argument('--seed', help='seed for the random sampling', type=float, default=100)
-    parser.add_argument('--EpisodeLength', help='number of gait steps of an episode', type=int, default=5000)
+    parser.add_argument('--EpisodeLength', help='number of gait steps of an episode', type=int, default=30000)
     parser.add_argument('--PerturbForce',
                         help='perturbation force to applied perpendicular to the heading direction of the robot',
                         type=float, default=0.0)
@@ -53,7 +53,7 @@ if __name__ == '__main__':
                        stairs=args.Stairs,
                        downhill=args.Downhill,
                        seed_value=args.seed,
-                       on_rack=False,
+                       on_rack=True,
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,
