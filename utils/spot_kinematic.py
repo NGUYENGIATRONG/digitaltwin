@@ -18,8 +18,8 @@ class Serial2RKin:
         [x, y] = x_y_points.tolist()
         # q1_temp = None
         [l1, l2, l3, l4, d] = self.link_lengths
-        r1 = np.sqrt(x ** 2 + y ** 2)
-        r2 = np.sqrt((x - d) ** 2 + y ** 2)
+        r1 = np.sqrt((x + d/2) ** 2 + y ** 2)
+        r2 = np.sqrt((x - d/2) ** 2 + y ** 2)
         # print(2 * l1 * r1)
         # print(2 * l2 * r2)
         # print(l2 ** 2 + r2 ** 2 - l4 ** 2)
@@ -39,9 +39,9 @@ class Serial2RKin:
         # q[0] = np.arctan2(y - l2 * np.sin(q1_temp), x - l2 * np.cos(q1_temp))##phi3 neu la nhanh 2 phi 1 neu la nhanh 1
         # q[1] = q1_temp - q[0] #phi2-phi1 or phi4-phi3
         cos_theta1 = (l1 ** 2 + r1 ** 2 - l3 ** 2) / (2 * l1 * r1)
-        q[0] = atan2(y, x) - math.acos(cos_theta1)
+        q[0] = atan2(y, x + d/2) - math.acos(cos_theta1)
         cos_theta2 = (l2 ** 2 + r2 ** 2 - l4 ** 2) / (2 * l2 * r2)
-        q[1] = atan2(y, x - d) + math.acos(cos_theta2)
+        q[1] = atan2(y, x - d/2) + math.acos(cos_theta2)
         valid = True
 
         return valid, q
@@ -150,8 +150,8 @@ class SpotKinematics:
 kinematic = SpotKinematics()
 theta1 = np.radians(-156.01)
 theta2 = np.radians(-23.68)
-x = 0.025
-y = -0.2
+x = -0.05
+y = -0.25
 z = 0
 ee_pos = [x ,y, z]
 # q = [theta1, theta2]
