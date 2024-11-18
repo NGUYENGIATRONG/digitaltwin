@@ -13,7 +13,14 @@ def update_joint_data():
 
     # Lấy thông tin góc của các khớp từ robot
     motor_angles = env.get_motor_angles()
-
+    motor_angles[0] = np.degrees(motor_angles[0]) + 20
+    motor_angles[2] = np.degrees(motor_angles[2]) + 20
+    motor_angles[4] = np.degrees(motor_angles[4]) + 20
+    motor_angles[6] = np.degrees(motor_angles[6]) + 20
+    motor_angles[1] = np.degrees(-motor_angles[1]) - 40 + 180
+    motor_angles[3] = np.degrees(-motor_angles[3]) - 40 + 180
+    motor_angles[5] = np.degrees(-motor_angles[5]) - 40 + 180
+    motor_angles[6] = np.degrees(-motor_angles[7]) - 40 + 180
     # Lưu các góc khớp vào danh sách (chuyển từ radian sang độ)
     for j in range(8):
         joint_angles[j].append(motor_angles[j])  # Lưu trực tiếp nếu cần radian
@@ -28,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--MotorStrength', help='maximum motor Strength to be applied', type=float, default=7.0)
     parser.add_argument('--RandomTest', help='flag to sample test values randomly', type=bool, default=False)
     parser.add_argument('--seed', help='seed for the random sampling', type=float, default=100)
-    parser.add_argument('--EpisodeLength', help='number of gait steps of an episode', type=int, default=30000)
+    parser.add_argument('--EpisodeLength', help='number of gait steps of an episode', type=int, default=10000)
     parser.add_argument('--PerturbForce',
                         help='perturbation force to applied perpendicular to the heading direction of the robot',
                         type=float, default=0.0)

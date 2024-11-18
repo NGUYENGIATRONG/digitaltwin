@@ -48,7 +48,7 @@ if __name__ == '__main__':
                        stairs=args.Stairs,
                        downhill=args.Downhill,
                        seed_value=args.seed,
-                       on_rack=True,
+                       on_rack=False,
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,
@@ -86,11 +86,11 @@ if __name__ == '__main__':
 
     for i_step in range(args.EpisodeLength):
         # Lấy danh sách góc động cơ tại bước `i_step`
-        motor_angles = [motor_angles_list[i][i_step] for i in
-                        range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
-
+        # motor_angles = [motor_angles_list[i][i_step] for i in
+        #                 range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
+        motor_angles = env.get_motor_angles()
         # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
-        state, r, done, info = env.step(motor_angles)
+        state, r, done, info = env.step(step_length)
         t_r += r
 
         # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
