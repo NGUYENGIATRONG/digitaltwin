@@ -128,32 +128,36 @@ class SpotKinematics:
         :param q: [hip_angle, knee_angle]
         :return: end-effector position
         """
-        [l1, _, _, l2, _] = self.link_parameters
+        [l1, l2, l3, l4, d] = self.link_parameters
         [l, _] = self.base_pivot2
+        x1 = -d / 2 + l1 * np.cos(q[0])
+        y1 = l1 * np.sin(q[0])
 
-        a = (l1 * np.cos(q[0]) - l1 * np.cos(q[1]) - l) / l2
-        b = (l1 * np.sin(q[0]) - l1 * np.sin(q[1])) / l2
+        x2 = d / 2 + l2 * np.cos(q[1])
+        y2 = l2 * np.sin(q[1])
+        D = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        if D > (l3 + l4) or D < abs(l3 - l4):
+            print('Không tồn tại nghiệm cho cấu hình này. Kiểm tra lại góc theta1 và theta2.')
 
-        theta2 = -2 * np.arctan((2 * b + (-(a ** 2 + b ** 2) * (a ** 2 + b ** 2 - 4))
-                                 ** 0.5) / (a ** 2 - 2 * a + b ** 2))
+        a = (l3 ** 2 - l4 ** 2 + D ** 2) / (2 * D)
+        h = np.sqrt(l3 ** 2 - a ** 2)
+        xm = x1 + a * (x2 - x1) / D
+        ym = y1 + a * (y2 - y1) / D
 
-        x = l1 * np.cos(q[0]) + l2 * np.cos(theta2)
-        y = l1 * np.sin(q[0]) + l2 * np.sin(theta2)
-
-        x = x + l * np.cos(theta2)
-        y = y + l * np.sin(theta2)
+        x = xm + h * (y2 - y1) / D
+        y = ym - h * (x2 - x1) / D
 
         ee_pos = [x, y]
 
         vaild = True
         return vaild, ee_pos
 kinematic = SpotKinematics()
-theta1 = np.radians(-156.01)
-theta2 = np.radians(-23.68)
+theta1 = np.radians(-146.12159007)
+theta2 = np.radians(-61.16792781)
 x = -0.05
 y = -0.25
 z = 0
 ee_pos = [x ,y, z]
-# q = [theta1, theta2]
+q = [theta1, theta2]
 print(np.degrees(kinematic.inverse_kinematics(x,y,z)))
-# print(kinematic.forward_kinematics(q))
+print(kinematic.forward_kinematics(q))
