@@ -88,18 +88,19 @@ if __name__ == '__main__':
         # Lấy danh sách góc động cơ tại bước `i_step`
         # motor_angles = [motor_angles_list[i][i_step] for i in
         #                 range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
-        motor_angles = env.get_motor_angles()
+        # motor_angles = env.get_motor_angles()
         # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
         state, r, done, info = env.step(step_length)
         t_r += r
-
+        env.draw_trajectory_link_3(duration=5, interval=0.1, line_color=[1, 0, 0], line_width=3)
+        # env.plot_trajectory()
         # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
-        print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
-
+        # print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
+        # env.apply_ext_force(0,100,link_index=3,visulaize=True,life_time=5)
         step_counter += 1
 
         # Điều kiện kết thúc nếu cần thiết
-        if done:
-            break
+        # if done:
+        #     break
 
     print("Total reward: " + str(t_r) + ' -> ' + str(args.PolicyDir))

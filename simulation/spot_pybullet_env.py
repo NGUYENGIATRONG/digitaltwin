@@ -2,6 +2,7 @@ import gym
 from gym import spaces
 import numpy as np
 from simulation import walking_controller
+from utils import spot_kinematic
 import random
 from collections import deque
 import pybullet
@@ -88,8 +89,9 @@ class SpotEnv(gym.Env):
         self._is_render = render
         self._on_rack = on_rack
         self.rh_along_normal = 0.24
-
+        self.Spot_kinematics = spot_kinematic.SpotKinematics()
         self.seed_value = seed_value
+        self.foot_positions = {"fl_": []}
         random.seed(self.seed_value)
 
         if self._is_render:
@@ -371,7 +373,7 @@ class SpotEnv(gym.Env):
         self._n_steps = 0
         return self.get_observation()
 
-    def apply_ext_force(self, x_f, y_f, link_index=1, visulaize=False, life_time=0.5):
+    def apply_ext_force(self, x_f, y_f, link_index=3, visulaize=False, life_time=0.0):
         """
         Hàm áp dụng lực ngoại lực lên robot
         :param x_f: ngooại lực theo hướng x
@@ -381,11 +383,10 @@ class SpotEnv(gym.Env):
         :param life_time: thời gian tồn tại của việc hiển thị
         :return:
         """
-        force_applied = [x_f, y_f, -100]
-        self._pybullet_client.applyExternalForce(self.spot, link_index, forceObj=[x_f, y_f, -100], posObj=[0, 0, 0],
+        force_applied = [x_f, y_f, 0]
+        self._pybullet_client.applyExternalForce(self.spot, link_index, forceObj=[x_f, y_f, -0], posObj=[0, 0, 0],
                                                  flags=self._pybullet_client.LINK_FRAME)
         f_mag = np.linalg.norm(np.array(force_applied))
-
         if visulaize and f_mag != 0.0:
             point_of_force = self._pybullet_client.getLinkState(self.spot, link_index)[0]
 
@@ -587,6 +588,7 @@ class SpotEnv(gym.Env):
         # if self.test is False:
         #     action = self.transform_action(action)
         self.do_simulation(step_length, n_frames=self._frame_skip)
+
         # self.do_simulation(motor_angles, n_frames=self._frame_skip)
         ob = self.get_observation()
         reward, done = self._get_reward()
@@ -614,7 +616,7 @@ class SpotEnv(gym.Env):
         :return:
         """
         omega = 2 * no_of_points * self._frequency
-
+        # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
         else:
@@ -953,6 +955,136 @@ class SpotEnv(gym.Env):
             controlMode=self._pybullet_client.VELOCITY_CONTROL,
             targetVelocity=0,
             force=0)
+
+    # def plot_trajectory(self):
+    #     """
+    #     Vẽ đường di chuyển của khâu cuối (end-effector) cho chân fl_ (chân trước trái).
+    #     Sử dụng PyBullet addUserDebugLine để hiển thị.
+    #     """
+    #     # Lấy góc các khớp hiện tại từ hàm get_motor_angles
+    #     motor_angles = self.get_motor_angles()
+    #
+    #     # Tên của chân bạn muốn theo dõi
+    #     leg = "fl_"  # Chỉ theo dõi chân fl_ (chân trước trái)
+    #
+    #     # Lưu trữ các vị trí khâu cuối (end-effector) của chân fl_
+    #     if not hasattr(self, 'foot_positions'):  # Nếu self.foot_positions chưa tồn tại, tạo nó
+    #         self.foot_positions = {"fl_": []}
+    #
+    #         # Tên chân cần theo dõi
+    #     leg = "fl_"  # Chỉ theo dõi chân fl_
+    #
+    #     # Lấy góc động cơ cho chân fl_
+    #     motor_angles = self.get_motor_angles()
+    #     hip_angle = motor_angles[0]  # Góc hip cho chân fl_
+    #     knee_angle = motor_angles[1]  # Góc knee cho chân fl_
+    #
+    #     # Tính toán vị trí khâu cuối (end-effector) cho chân fl_
+    #     valid, ee_pos = self.Spot_kinematics.forward_kinematics([hip_angle, knee_angle])
+    #     if not valid:
+    #         print(f"Không thể tính toán vị trí của chân {leg}.")
+    #         return
+    #
+    #     # Thêm vị trí mới vào danh sách
+    #     self.foot_positions[leg].append(ee_pos)
+    #     print(f"Vị trí chân {leg}: {self.foot_positions[leg]}")
+    #     print(len(self.foot_positions))
+    #     if len(self.foot_positions[leg]) > 1:
+    #         start_point = self.foot_positions[leg][-2]  # Điểm trước
+    #         end_point = self.foot_positions[leg][-1]  # Điểm hiện tại
+    #         print(f"start:{start_point}")
+    #         # Màu sắc cho chân fl_
+    #         color = [1, 0, 0]  # Màu đỏ
+    #
+    #         # Vẽ đường nối giữa hai điểm này
+    #         self._pybullet_client.addUserDebugLine(
+    #             lineFromXYZ=start_point + [0],  # Tọa độ bắt đầu (thêm 0 cho z)
+    #             lineToXYZ=end_point + [0],  # Tọa độ kết thúc (thêm 0 cho z)
+    #             lineColorRGB=color,  # Màu đỏ
+    #             lineWidth=10.0,  # Độ rộng đường vẽ
+    #             lifeTime=10  # Thời gian tồn tại đường vẽ
+    #         )
+    # def plot_trajectory(self, theta, step_length, no_of_points):
+    #     """
+    #     Vẽ đường đi của chân 'fl_' (Front Left) dựa trên công thức tính tọa độ từ góc theta và step_length.
+    #     :param theta: Góc ban đầu của chuyển động bước.
+    #     :param step_length: Chiều dài bước chân.
+    #     :param no_of_points: Số điểm cần vẽ trên đường đi.
+    #     """
+    #     # Tọa độ trung tâm và tham số
+    #     legs = walking_controller.WalkingController.initialize_leg_state(theta, step_length)
+    #
+    #     x_center = 0.02
+    #     y_center = -0.29
+    #     step_height = 0.08
+    #
+    #     for leg in legs:
+    #         leg.r = leg.step_length / 2
+    #
+    #         # Duyệt qua các điểm trên elipse
+    #         for i in range(no_of_points):
+    #             leg_theta_start = (i / no_of_points) * 2 * np.pi
+    #             leg_theta_end = ((i + 1) / no_of_points) * 2 * np.pi
+    #
+    #             x_start = -leg.r * np.cos(leg_theta_start) + x_center + leg.x_shift
+    #             y_start = (step_height * np.sin(
+    #                 leg_theta_start) if leg_theta_start <= np.pi else 0) + y_center + leg.y_shift
+    #
+    #             x_end = -leg.r * np.cos(leg_theta_end) + x_center + leg.x_shift
+    #             y_end = (step_height * np.sin(leg_theta_end) if leg_theta_end <= np.pi else 0) + y_center + leg.y_shift
+    #             print(f"start {x_start,y_start}")
+    #             print(f"end {x_end,y_end}")
+    #             # Vẽ đoạn thẳng từ điểm hiện tại tới điểm tiếp theo
+    #             self._pybullet_client.addUserDebugLine(
+    #                 lineFromXYZ=[x_start, y_start, 0],  # Tọa độ bắt đầu
+    #                 lineToXYZ=[x_end, y_end, 0],  # Tọa độ kết thúc
+    #                 lineColorRGB=[1, 0, 0],  # Màu đỏ
+    #                 lineWidth=10.0,
+    #                 lifeTime=10
+    #             )
+    #
+    def draw_trajectory_link_3(self, duration, interval=0.1, line_color=[0, 1, 0], line_width=2):
+        """
+        Vẽ đường đi của link 3 (fr_lower_hip_joint) sử dụng addUserDebugLine.
+        :param duration: Thời gian để vẽ đường đi (giây).
+        :param interval: Khoảng thời gian giữa các lần lấy tọa độ (giây).
+        :param line_color: Màu của đường vẽ (mặc định là màu xanh lá cây).
+        :param line_width: Độ dày của đường vẽ.
+        """
+        # prev_position = [1, 1, 0]
+        # current_position = [0, 0, 100]
+        # print(prev_position, current_position)
+        # self._pybullet_client.addUserDebugLine(
+        #     lineFromXYZ=prev_position,
+        #     lineToXYZ=current_position,
+        #     lineColorRGB=line_color,
+        #     lineWidth=line_width,
+        #     lifeTime=0  # Đường sẽ tồn tại mãi mãi
+        # )
+        link_id = 3  # ID của link 3
+        start_time = time.time()  # Lấy thời gian bắt đầu
+        prev_position = None  # Biến lưu tọa độ trước đó của link
+
+        while time.time() - start_time < duration:
+            # Lấy tọa độ hiện tại của link 3
+            link_state = self._pybullet_client.getLinkState(self.spot, link_id)
+            current_position = link_state[0]  # Tọa độ hiện tại (x, y, z)
+
+            if prev_position is not None:
+                # Vẽ đường từ tọa độ trước đó đến tọa độ hiện tại
+                self._pybullet_client.addUserDebugLine(
+                    lineFromXYZ=prev_position,
+                    lineToXYZ=current_position,
+                    lineColorRGB=line_color,
+                    lineWidth=line_width,
+                    lifeTime=0  # Đường sẽ tồn tại mãi mãi
+                )
+
+            # Cập nhật tọa độ trước đó
+            prev_position = current_position
+            print(prev_position,current_position)
+            # Đợi một khoảng thời gian trước khi lấy tọa độ tiếp theo
+            time.sleep(interval)
 
     @property
     def pybullet_client(self):

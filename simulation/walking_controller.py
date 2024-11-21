@@ -15,8 +15,10 @@ from dataclasses import dataclass
 from collections import namedtuple
 from utils import spot_kinematic
 import numpy as np
-
+from simulation import bullet_client
 no_of_points = 100
+
+_pybullet_client = bullet_client.BulletClient()
 
 
 def constrain_theta(theta):
@@ -143,7 +145,7 @@ class WalkingController:
 
         x_center = 0.02
         y_center = -0.29
-        step_height = 0.06
+        step_height = 0.08
         x = y = 0
 
         for leg in legs:
@@ -209,3 +211,43 @@ class WalkingController:
                             legs.back_right.motor_knee]
 
         return leg_motor_angles
+    #
+    # def plot_trajectory(self, theta, step_length, no_of_points):
+    #     """
+    #     Vẽ đường đi của chân 'fl_' (Front Left) dựa trên công thức tính tọa độ từ góc theta và step_length.
+    #     :param theta: Góc ban đầu của chuyển động bước.
+    #     :param step_length: Chiều dài bước chân.
+    #     :param no_of_points: Số điểm cần vẽ trên đường đi.
+    #     """
+    #     # Tọa độ trung tâm và tham số
+    #     legs = self.initialize_leg_state(theta, step_length)
+    #
+    #     x_center = 0.02
+    #     y_center = -0.29
+    #     step_height = 0.08
+    #
+    #     for leg in legs:
+    #         leg.r = leg.step_length / 2
+    #
+    #         # Duyệt qua các điểm trên elipse
+    #         for i in range(no_of_points):
+    #             leg_theta_start = (i / no_of_points) * 2 * np.pi
+    #             leg_theta_end = ((i + 1) / no_of_points) * 2 * np.pi
+    #
+    #             x_start = -leg.r * np.cos(leg_theta_start) + x_center + leg.x_shift
+    #             y_start = (step_height * np.sin(
+    #                 leg_theta_start) if leg_theta_start <= np.pi else 0) + y_center + leg.y_shift
+    #
+    #             x_end = -leg.r * np.cos(leg_theta_end) + x_center + leg.x_shift
+    #             y_end = (step_height * np.sin(leg_theta_end) if leg_theta_end <= np.pi else 0) + y_center + leg.y_shift
+    #             print(f"start {x_start,y_start}")
+    #             print(f"end {x_end,y_end}")
+    #             # Vẽ đoạn thẳng từ điểm hiện tại tới điểm tiếp theo
+    #             _pybullet_client.addUserDebugLine(
+    #                 lineFromXYZ=[x_start, y_start, 0],  # Tọa độ bắt đầu
+    #                 lineToXYZ=[x_end, y_end, 0],  # Tọa độ kết thúc
+    #                 lineColorRGB=[1, 0, 0],  # Màu đỏ
+    #                 lineWidth=10.0,
+    #                 lifeTime=10
+    #             )
+    #

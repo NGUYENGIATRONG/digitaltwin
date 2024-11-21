@@ -6,7 +6,7 @@ import time
 from test_spot_policy import motor_angles_list
 
 # Góc động cơ cố định mà bạn chọn (thay đổi các giá trị này theo nhu cầu)
-fixed_motor_angles = [np.radians( 42 - 20), np.radians( 40 - ( 180 - 170)),np.radians(42 - 20),np.radians(40 - ( 180 - 170) ),np.radians(42 -20),np.radians(40 - ( 180 - 170)),np.radians(42 -20),np.radians(40 - ( 180 - 170))]  # Giá trị góc theo radian (có thể thay đổi)
+fixed_motor_angles = [np.radians( 22.37531541 - 20), np.radians( 40 - ( 180 - 140.4276661)),np.radians(22.37531541 - 20),np.radians(40 - ( 180 - 140.4276661) ),np.radians(22.37531541 -20),np.radians(40 - ( 180 - 140.4276661)),np.radians(22.37531541 -20),np.radians(40 - ( 180 - 140.4276661))]  # Giá trị góc theo radian (có thể thay đổi)
 
 #hip knee
 if __name__ == '__main__':
