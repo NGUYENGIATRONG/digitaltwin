@@ -47,7 +47,7 @@ class SpotEnv(gym.Env):
                  imu_noise=False,
                  deg=5,
                  test=False,
-                 default_pos=(-0.23, 0, 0.3)):
+                 default_pos=(-0.23, 0, 0.0)):
         """
         Class for Spotdog
         :param render: render the pybullet environment
@@ -73,7 +73,7 @@ class SpotEnv(gym.Env):
         walking_controller: Đối tượng để điều khiển dáng đi của robot.
         observation_space, action_space: Xác định không gian quan sát và hành động cho Gym.
         """
-
+        self.prev_position = None
         self.new_fric_val = None
         self._motor_id_list = None
         self._joint_name_to_id = None
@@ -1043,48 +1043,37 @@ class SpotEnv(gym.Env):
     #                 lifeTime=10
     #             )
     #
-    def draw_trajectory_link_3(self, duration, interval=0.1, line_color=[0, 1, 0], line_width=2):
+    def draw_trajectory_link_3(self, interval=0.1, line_color=[0, 1, 0], line_width=2, lifeTime=0):
         """
         Vẽ đường đi của link 3 (fr_lower_hip_joint) sử dụng addUserDebugLine.
-        :param duration: Thời gian để vẽ đường đi (giây).
         :param interval: Khoảng thời gian giữa các lần lấy tọa độ (giây).
         :param line_color: Màu của đường vẽ (mặc định là màu xanh lá cây).
         :param line_width: Độ dày của đường vẽ.
+        :param lifeTime: Thời gian tồn tại của đường vẽ (giây).
         """
-        # prev_position = [1, 1, 0]
-        # current_position = [0, 0, 100]
-        # print(prev_position, current_position)
-        # self._pybullet_client.addUserDebugLine(
-        #     lineFromXYZ=prev_position,
-        #     lineToXYZ=current_position,
-        #     lineColorRGB=line_color,
-        #     lineWidth=line_width,
-        #     lifeTime=0  # Đường sẽ tồn tại mãi mãi
-        # )
-        link_id = 3  # ID của link 3
-        start_time = time.time()  # Lấy thời gian bắt đầu
-        prev_position = None  # Biến lưu tọa độ trước đó của link
+        link_id = 3
 
-        while time.time() - start_time < duration:
-            # Lấy tọa độ hiện tại của link 3
-            link_state = self._pybullet_client.getLinkState(self.spot, link_id)
-            current_position = link_state[0]  # Tọa độ hiện tại (x, y, z)
 
-            if prev_position is not None:
-                # Vẽ đường từ tọa độ trước đó đến tọa độ hiện tại
-                self._pybullet_client.addUserDebugLine(
-                    lineFromXYZ=prev_position,
-                    lineToXYZ=current_position,
-                    lineColorRGB=line_color,
-                    lineWidth=line_width,
-                    lifeTime=0  # Đường sẽ tồn tại mãi mãi
+            # Lấy trạng thái hiện tại của link
+        link_state = self._pybullet_client.getLinkState(self.spot, link_id)
+        current_position = link_state[0]
+        print(self.prev_position)
+        print(f"current_possition{current_position}")
+            # Nếu đã có tọa độ trước đó, vẽ đường
+        if self.prev_position:
+            self._pybullet_client.addUserDebugLine(
+                lineFromXYZ=self.prev_position,
+                lineToXYZ=current_position,
+                lineColorRGB=line_color,
+                lineWidth=line_width,
+                lifeTime=lifeTime
                 )
 
             # Cập nhật tọa độ trước đó
-            prev_position = current_position
-            print(prev_position,current_position)
-            # Đợi một khoảng thời gian trước khi lấy tọa độ tiếp theo
-            time.sleep(interval)
+        self.prev_position = current_position
+
+        # Đợi một khoảng thời gian trước khi lấy tọa độ tiếp theo
+        time.sleep(interval)
 
     @property
     def pybullet_client(self):
