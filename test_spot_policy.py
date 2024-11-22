@@ -52,7 +52,7 @@ if __name__ == '__main__':
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,
-                       default_pos=(-1, 0, 0.2))
+                       default_pos=(-2, 0, 0.2))
 
     if args.RandomTest:
         env.set_randomization(default=False)
@@ -92,8 +92,8 @@ if __name__ == '__main__':
         # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
         state, r, done, info = env.step(step_length)
         t_r += r
-        env.draw_trajectory_link_3(interval=0.1, line_color=[1, 0, 0], line_width=1, lifeTime=0)
-        env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
+        # env.draw_trajectory_link_3(interval=0.1, line_color=[1, 0, 0], line_width=1, lifeTime=0)
+        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
         # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
         # print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
         # env.apply_ext_force(0,100,link_index=3,visulaize=True,life_time=5)
