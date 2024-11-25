@@ -23,6 +23,7 @@ if __name__ == '__main__':
     # Khởi tạo môi trường mô phỏng
     env = spot.SpotEnv(render=True,
                        on_rack=True,
+                       wedge=False,
                        gait='trot',
                        default_pos=(-1, 0, 0.2))
 

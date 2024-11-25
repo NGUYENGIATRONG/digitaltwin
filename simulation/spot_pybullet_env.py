@@ -251,35 +251,14 @@ class SpotEnv(gym.Env):
         if self._is_wedge:
 
             # wedge_halfheight_offset = 0.01
-            incline_deg = getattr(self, "incline_deg", 15)
-            incline_ori = getattr(self, "incline_ori", 0)
+            incline_deg = getattr(self, "incline_deg", 20)
+            # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
-            wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg)) / 2.0
+            wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*2
             wedgePos = [0, 0, wedge_halfheight]
-            wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, incline_ori])
+            wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
-            if not self.downhill:
-                wedge_model_path = "simulation/map/map/urdf/map.urdf"
-
-                # self.INIT_ORIENTATION = self._pybullet_client.getQuaternionFromEuler(
-                #     [np.radians(self.incline_deg) * np.sin(self.incline_ori),
-                #      -np.radians(self.incline_deg) * np.cos(self.incline_ori), 0])
-                #
-                # self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(
-                #     np.radians(self.incline_deg)) * abs(self.wedge_start)
-                #
-                # self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
-
-            else:
-                wedge_model_path = "simulation/map/map/urdf/map.urdf"
-
-
-                # self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(
-                #     np.radians(self.incline_deg)) * 1.5
-                #
-                # self.INIT_POSITION = [0, 0, self.robot_landing_height]  # [0.5, 0.7, 0.3] #[-0.5,-0.5,0.3]
-                #
-                # self.INIT_ORIENTATION = [0, 0, 0, 1]
+            wedge_model_path = "simulation/map20/urdf/map20.urdf"
 
             self.wedge = self._pybullet_client.loadURDF(wedge_model_path, wedgePos, wedgeOrientation, useFixedBase=True)
 
@@ -338,47 +317,26 @@ class SpotEnv(gym.Env):
         self.last_yaw = 0
         self.inverse = False
 
-        if self._is_wedge:
-
-            # wedge_halfheight_offset = 0.01
-            incline_deg = getattr(self, "incline_deg", 15)
-            incline_ori = getattr(self, "incline_ori", 0)
-            wedge_halfheight_offset = 0.01
-            wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg)) / 2.0
-            wedgePos = [0, 0, wedge_halfheight]
-            wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, incline_ori])
-
-            if not self.downhill:
-                wedge_model_path = "simulation/map/map/urdf/map.urdf"
-
-                # self.INIT_ORIENTATION = self._pybullet_client.getQuaternionFromEuler(
-                #     [np.radians(self.incline_deg) * np.sin(self.incline_ori),
-                #      -np.radians(self.incline_deg) * np.cos(self.incline_ori), 0])
-                #
-                # self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(
-                #     np.radians(self.incline_deg)) * abs(self.wedge_start)
-                #
-                # self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
-
-            else:
-                wedge_model_path = "simulation/map/map/urdf/map.urdf"
-
-                # self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(
-                #     np.radians(self.incline_deg)) * 1.5
-                #
-                # self.INIT_POSITION = [0, 0, self.robot_landing_height]  # [0.5, 0.7, 0.3] #[-0.5,-0.5,0.3]
-                #
-                # self.INIT_ORIENTATION = [0, 0, 0, 1]
-
-            self.wedge = self._pybullet_client.loadURDF(wedge_model_path, wedgePos, wedgeOrientation, useFixedBase=True)
-
-            # Đặt ma sát cho miếng cản
-            self._pybullet_client.changeDynamics(self.wedge, -1, lateralFriction=1.6)
-
-            # Tính toán vị trí khởi đầu của robot trên miếng cản
-            self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(np.radians(incline_deg)) * abs(
-                self.wedge_start)
-            self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
+        # if self._is_wedge:
+        #     # wedge_halfheight_offset = 0.01
+        #     incline_deg = getattr(self, "incline_deg", 20)
+        #     # incline_ori = getattr(self, "incline_ori", 0)
+        #     wedge_halfheight_offset = 0.01
+        #     wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg)) / 2.0
+        #     wedgePos = [0, 0, wedge_halfheight]
+        #     wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
+        #
+        #     wedge_model_path = "simulation/map20/urdf/map20.urdf"
+        #
+        #     self.wedge = self._pybullet_client.loadURDF(wedge_model_path, wedgePos, wedgeOrientation, useFixedBase=True)
+        #
+        #     # Đặt ma sát cho miếng cản
+        #     self._pybullet_client.changeDynamics(self.wedge, -1, lateralFriction=1.6)
+        #
+        #     # Tính toán vị trí khởi đầu của robot trên miếng cản
+        #     self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(np.radians(incline_deg)) * abs(
+        #         self.wedge_start)
+        #     self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
 
         self._pybullet_client.resetBasePositionAndOrientation(self.spot, self.INIT_POSITION, self.INIT_ORIENTATION)
         self._pybullet_client.resetBaseVelocity(self.spot, [0, 0, 0], [0, 0, 0])
@@ -655,8 +613,8 @@ class SpotEnv(gym.Env):
                 else:
                     self.apply_ext_force(self.x_f, self.y_f, visulaize=False)
 
-        contact_info = self.get_foot_contacts()
-        pos, ori = self.get_base_pos_and_orientation()
+        contact_info = self.get_foot_contacts()#ma trận tín hiệu khi chân tiếp xúc
+        pos, ori = self.get_base_pos_and_orientation()# vị trí và hướng của robot
 
         rot_mat = self._pybullet_client.getMatrixFromQuaternion(ori)
         rot_mat = np.array(rot_mat)

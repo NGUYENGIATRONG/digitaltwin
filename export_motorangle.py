@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     # Chạy mô phỏng và cập nhật góc khớp
     for i in range(args.EpisodeLength):
-        update_joint_data()  # Cập nhật dữ liệu cho mỗi bước mô phỏng
+        update_joint_data()  # Cập nhật dữ liệu cho mỗi bước mô phỏng   `
 
 
     # Lưu từng góc khớp vào một file riêng biệt

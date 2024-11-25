@@ -1,7 +1,7 @@
 import numpy as np
-mang1 = np.load("/home/trong/PycharmProjects/pythonProject/joint_angle_1.npy")
-mang2 = np.load("/home/trong/PycharmProjects/pythonProject/joint_angle_2.npy")
-mang8 = np.load("/home/trong/PycharmProjects/pythonProject/joint_angle_8.npy")
+mang1 = np.load("/home/giatrong/PycharmProjects/pythonProject/joint_angle_1.npy")
+mang2 = np.load("/home/giatrong/PycharmProjects/pythonProject/joint_angle_2.npy")
+mang8 = np.load("/home/giatrong/PycharmProjects/pythonProject/joint_angle_8.npy")
 
 print(mang1)
 print(mang2)
