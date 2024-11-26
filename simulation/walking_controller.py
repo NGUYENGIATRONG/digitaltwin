@@ -159,6 +159,9 @@ class WalkingController:
                 else:
                     flag = 1
                 y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
+                if leg.name in ['fr', 'fl']:
+                    y += 0.08
+
 
             leg.x, leg.y = x, y
 

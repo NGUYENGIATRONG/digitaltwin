@@ -37,7 +37,7 @@ class SpotEnv(gym.Env):
                  render=False,
                  on_rack=False,
                  gait='trot',
-                 phase=(0, no_of_points, no_of_points, 0),
+                 phase=(0, 0, 0, 0),
                  action_dim=12,
                  end_steps=1000,
                  stairs=False,
@@ -255,7 +255,7 @@ class SpotEnv(gym.Env):
             # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
             wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*2
-            wedgePos = [0, 0, wedge_halfheight]
+            wedgePos = [1000, 1000.007, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
             wedge_model_path = "simulation/map20/urdf/map20.urdf"
@@ -379,6 +379,15 @@ class SpotEnv(gym.Env):
         """
         m = self._pybullet_client.getDynamicsInfo(self.spot, link_idx)
         return m[0]
+
+    def get_link_center(self, link_idx):
+        """
+        Chức năng để lấy khối lượng của bất kỳ liên kết nào
+        :param link_idx: link index
+        :return: mass of the link
+        """
+        m = self._pybullet_client.getDynamicsInfo(self.spot, link_idx)
+        return m[1]
 
     def set_randomization(self, default=False, idx1=0, idx2=0, idx3=1, idxc=2, idxp=0, deg=5, ori=0):
         """
@@ -588,7 +597,7 @@ class SpotEnv(gym.Env):
         :param n_frames:
         :return:
         """
-        omega = 2 * no_of_points * self._frequency
+        omega = 1.5 * no_of_points * self._frequency
         # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
@@ -863,7 +872,9 @@ class SpotEnv(gym.Env):
                        "motor_br_upper_knee_joint"]
 
         motor_id_list = [joint_name_to_id[motor_name] for motor_name in motor_names]
-
+        print(motor_id_list)
+        print(joint_name_to_id)
+        print(num_joints)
         return joint_name_to_id, motor_id_list
 
     def reset_leg(self, leg_id, add_constraint, standstilltorque=10):
@@ -1048,6 +1059,23 @@ class SpotEnv(gym.Env):
         # Đợi một khoảng thời gian trước khi lấy tọa độ tiếp theo
         time.sleep(interval)
 
+    def calculate_robot_com(self):
+        num_links = self._pybullet_client.getNumJoints(self.spot)
+        total_mass = 0  # Tổng khối lượng của robot
+        weighted_com = np.array([0.0, 0.0, 0.0])  # Trọng tâm tổng thể của robot, khởi tạo là 0
+
+        for link_idx in range(num_links):
+            link_com = self.get_link_center(link_idx)  # Lấy trọng tâm của liên kết
+            link_mass = self._pybullet_client.getDynamicsInfo(self.spot, link_idx)[0]  # Khối lượng của liên kết
+            total_mass += link_mass
+            weighted_com += link_com * link_mass
+
+        if total_mass > 0:
+            overall_com = weighted_com / total_mass
+        else:
+            overall_com = np.array([0.0, 0.0, 0.0])
+
+        return overall_com
     @property
     def pybullet_client(self):
         return self._pybullet_client

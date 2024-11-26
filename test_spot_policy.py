@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # Khởi tạo môi trường mô phỏng
     env = spot.SpotEnv(render=True,
-                       wedge=WedgePresent,
+                       wedge=True,
                        stairs=args.Stairs,
                        downhill=args.Downhill,
                        seed_value=args.seed,
@@ -93,11 +93,12 @@ if __name__ == '__main__':
         state, r, done, info = env.step(step_length)
         t_r += r
         # env.draw_trajectory_link_3(interval=0.1, line_color=[1, 0, 0], line_width=1, lifeTime=0)
-        env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
+        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
         # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
         # print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
         # env.apply_ext_force(0,100,link_index=3,visulaize=True,life_time=5)
         step_counter += 1
+        env.pybullet_client.resetDebugVisualizerCamera(0.95, 90, -80, env.get_base_pos_and_orientation()[0])
 
         # Điều kiện kết thúc nếu cần thiết
         # if done:
