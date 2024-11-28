@@ -98,7 +98,7 @@ if __name__ == '__main__':
         # print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
         # env.apply_ext_force(0,100,link_index=3,visulaize=True,life_time=5)
         step_counter += 1
-        env.pybullet_client.resetDebugVisualizerCamera(0.95, 90, -80, env.get_base_pos_and_orientation()[0])
+        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 90, -80, env.get_base_pos_and_orientation()[0])
 
         # Điều kiện kết thúc nếu cần thiết
         # if done:

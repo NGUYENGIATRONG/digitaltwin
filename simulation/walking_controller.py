@@ -5,19 +5,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""Utilities for realizing walking controllers."""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+"""Utilities for realizing walking controllers."""
+import sys
+sys.path.append("/home/giatrong/PycharmProjects/pythonProject/simulation")
+
+
 from dataclasses import dataclass
 from collections import namedtuple
 from utils import spot_kinematic
 import numpy as np
 from simulation import bullet_client
-no_of_points = 100
+from simulation import spot_pybullet_env
+# from simulation import spot_pybullet_env as spot_env_module
+from spot_pybullet_env import SpotEnv as e
 
+from scipy.spatial.transform import Rotation as R
+no_of_points = 100
+# env = spot_env_module.SpotEnv()
 _pybullet_client = bullet_client.BulletClient()
 
 
@@ -142,12 +149,16 @@ class WalkingController:
         :return: danh sách vị trí của động cơ cho hành động mong muốn
         """
         legs = self.initialize_leg_state(theta, step_length)
+        ori = e.get_base_pos_and_orientation()[1]
+        euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
+        pitch_angle = euler_angles[1]
+        print(pitch_angle)
 
         x_center = 0.02
         y_center = -0.29
         step_height = 0.08
         x = y = 0
-        phase_offset = np.radians(0.3)
+        phase_offset = np.radians(0.02)
         for leg in legs:
             leg_theta = (leg.theta / (2 * no_of_points)) * 2 * np.pi
             leg.r = leg.step_length / 2
@@ -160,7 +171,13 @@ class WalkingController:
                     flag = 1
                 y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
                 if leg.name in ['fr', 'fl']:
-                    y += 0.08
+                    y += 0.07
+                    # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
+                    #     y -= 0.08
+                if leg.name in ['br', 'bl']:
+                    y += 0.01
+                    # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
+                    #     y -= 0.08
 
             leg.x, leg.y = x, y
 
@@ -181,7 +198,7 @@ class WalkingController:
         Run elipse trajectory with IK
         """
         legs = self.initialize_leg_state(theta, action=None, test=test)
-
+        pos,ori = e.get_base_pos_and_orientation()
         # Parameters for elip --------------------
         step_length = 0.07
         step_height = 0.05

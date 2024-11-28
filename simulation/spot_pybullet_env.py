@@ -10,6 +10,8 @@ from simulation import bullet_client
 import pybullet_data
 from simulation import get_terrain_normal as normal_estimator
 import time
+from scipy.spatial.transform import Rotation as R
+
 # Bắt đầu đo thời gian
 start_time = time.time()
 
@@ -255,7 +257,7 @@ class SpotEnv(gym.Env):
             # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
             wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*2
-            wedgePos = [0, 0, wedge_halfheight]
+            wedgePos = [0, 0.02, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
             wedge_model_path = "simulation/map20/urdf/map20.urdf"
@@ -597,7 +599,17 @@ class SpotEnv(gym.Env):
         :param n_frames:
         :return:
         """
-        omega = 1.5 * no_of_points * self._frequency
+        pos, ori = self.get_base_pos_and_orientation()
+        euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
+        pitch_angle = euler_angles[1]
+        print(pitch_angle)
+        if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
+            omega = 1.6* no_of_points * self._frequency
+        elif pitch_angle < -5:  # Giả sử góc nhỏ hơn -5 độ là xuống dốc
+            omega = 1.6 * no_of_points * self._frequency
+        else:
+            omega = 1.6 * no_of_points * self._frequency
+        # omega = 1.5 * no_of_points * self._frequency
         # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
