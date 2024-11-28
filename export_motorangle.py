@@ -60,7 +60,7 @@ if __name__ == '__main__':
                        stairs=args.Stairs,
                        downhill=args.Downhill,
                        seed_value=args.seed,
-                       on_rack=True,
+                       on_rack=False,
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,

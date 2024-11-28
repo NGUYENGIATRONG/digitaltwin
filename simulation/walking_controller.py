@@ -147,7 +147,7 @@ class WalkingController:
         y_center = -0.29
         step_height = 0.08
         x = y = 0
-
+        phase_offset = np.radians(0.3)
         for leg in legs:
             leg_theta = (leg.theta / (2 * no_of_points)) * 2 * np.pi
             leg.r = leg.step_length / 2
@@ -162,7 +162,6 @@ class WalkingController:
                 if leg.name in ['fr', 'fl']:
                     y += 0.08
 
-
             leg.x, leg.y = x, y
 
             leg.motor_hip, leg.motor_knee, _ = self.Spot_kinematics.inverse_kinematics(leg.x, leg.y, 0)
@@ -170,8 +169,8 @@ class WalkingController:
             leg.motor_hip = leg.motor_hip + self.MOTOROFFSETS_Spot[0]
             leg.motor_knee = leg.motor_knee + self.MOTOROFFSETS_Spot[1]
 
-        leg_motor_angles = [legs.front_left.motor_hip, legs.front_left.motor_knee, legs.front_right.motor_hip,
-                            legs.front_right.motor_knee,
+        leg_motor_angles = [legs.front_left.motor_hip, legs.front_left.motor_knee, legs.front_right.motor_hip+phase_offset,
+                            legs.front_right.motor_knee+phase_offset,
                             legs.back_left.motor_hip, legs.back_left.motor_knee, legs.back_right.motor_hip,
                             legs.back_right.motor_knee]
 

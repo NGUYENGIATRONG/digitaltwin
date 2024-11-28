@@ -255,7 +255,7 @@ class SpotEnv(gym.Env):
             # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
             wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*2
-            wedgePos = [1000, 1000.007, wedge_halfheight]
+            wedgePos = [0, 0, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
             wedge_model_path = "simulation/map20/urdf/map20.urdf"
