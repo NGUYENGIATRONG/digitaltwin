@@ -143,7 +143,7 @@ class WalkingController:
         self.back_right.step_length = step_length[2]
         self.back_left.step_length = step_length[3]
 
-    def run_elliptical_traj_spot(self, theta, step_length):
+    def run_elliptical_traj_spot(self, theta, step_length,step_height):
         """
         Bộ điều khiển quỹ đạo bán-ellipse
 
@@ -152,20 +152,20 @@ class WalkingController:
         :return: danh sách vị trí của động cơ cho hành động mong muốn
         """
         from simulation import spot_pybullet_env
-        from simulation.spot_pybullet_env import SpotEnv
-        env = SpotEnv()
+        # from simulation.spot_pybullet_env import SpotEnv
+        # env = SpotEnv()
         legs = self.initialize_leg_state(theta, step_length)
-
-        ori = env.get_base_pos_and_orientation()[1]
-        euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
-        pitch_angle = euler_angles[1]
-        print(pitch_angle)
+        print(f"goclec{step_height}")
+        # ori = env.get_base_pos_and_orientation()[1]
+        # euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
+        # pitch_angle = euler_angles[1]
+        # print(pitch_angle)
 
         x_center = 0.02
         y_center = -0.29
-        step_height = 0.08
+
         x = y = 0
-        phase_offset = np.radians(0.02)
+        phase_offset = np.radians(0.023)
         for leg in legs:
             leg_theta = (leg.theta / (2 * no_of_points)) * 2 * np.pi
             leg.r = leg.step_length / 2
@@ -177,12 +177,13 @@ class WalkingController:
                 else:
                     flag = 1
                 y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
+                print(y)
                 if leg.name in ['fr', 'fl']:
-                    y += 0.07
-                    if pitch_angle > 5:  # Giả sử góc lớn hơn 5 độ là lên dốc
-                        y -= 0.05
+                    y += 0.068
+                    # if pitch_angle > 5:  # Giả sử góc lớn hơn 5 độ là lên dốc
+                    #     y -= 0.05
                 if leg.name in ['br', 'bl']:
-                    y += 0.01
+                    y += 0.011
                     # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
                     #     y -= 0.08
 

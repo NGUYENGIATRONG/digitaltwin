@@ -256,7 +256,7 @@ class SpotEnv(gym.Env):
             incline_deg = getattr(self, "incline_deg", 20)
             # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
-            wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*2
+            wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*1.7
             wedgePos = [0, 0.02, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
@@ -599,22 +599,26 @@ class SpotEnv(gym.Env):
         :param n_frames:
         :return:
         """
-        pos, ori = self.get_base_pos_and_orientation()
+        step_height = 0.08
+        pos,ori = self.get_base_pos_and_orientation()
         euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
         pitch_angle = euler_angles[1]
         print(pitch_angle)
-        if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
-            omega = 1.6* no_of_points * self._frequency
-        elif pitch_angle < -5:  # Giả sử góc nhỏ hơn -5 độ là xuống dốc
-            omega = 1.6 * no_of_points * self._frequency
+        if pitch_angle > 12:  # Giả sử góc lớn hơn 5 độ là xuong
+            omega = 1* no_of_points * self._frequency
+            step_height = 0.1
+        elif pitch_angle < -5:  # Giả sử góc nhỏ hơn -5 độ là len
+            omega = 1.8 * no_of_points * self._frequency
+            # step_height = 0.04
         else:
-            omega = 1.6 * no_of_points * self._frequency
+            omega = 1.3 * no_of_points * self._frequency
+            # step_height = 0.05
         # omega = 1.5 * no_of_points * self._frequency
         # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
         else:
-            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length)
+            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_height)
         self._theta = constrain_theta(omega * self.dt + self._theta)
         m_angle_cmd_ext = np.array(leg_m_angle_cmd)
         # m_angle_cmd_ext = np.array(motor_angles)
