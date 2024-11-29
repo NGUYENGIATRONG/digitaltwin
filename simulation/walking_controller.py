@@ -8,6 +8,9 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+from future.standard_library import import_
+
 """Utilities for realizing walking controllers."""
 import sys
 sys.path.append("/home/giatrong/PycharmProjects/pythonProject/simulation")
@@ -20,7 +23,7 @@ import numpy as np
 from simulation import bullet_client
 from simulation import spot_pybullet_env
 # from simulation import spot_pybullet_env as spot_env_module
-from spot_pybullet_env import SpotEnv as e
+# from spot_pybullet_env import SpotEnv as e
 
 from scipy.spatial.transform import Rotation as R
 no_of_points = 100
@@ -148,8 +151,12 @@ class WalkingController:
         :param action: các tham số điều chỉnh quỹ đạo được dự đoán bởi policy
         :return: danh sách vị trí của động cơ cho hành động mong muốn
         """
+        from simulation import spot_pybullet_env
+        from simulation.spot_pybullet_env import SpotEnv
+        env = SpotEnv()
         legs = self.initialize_leg_state(theta, step_length)
-        ori = e.get_base_pos_and_orientation()[1]
+
+        ori = env.get_base_pos_and_orientation()[1]
         euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
         pitch_angle = euler_angles[1]
         print(pitch_angle)
@@ -172,8 +179,8 @@ class WalkingController:
                 y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
                 if leg.name in ['fr', 'fl']:
                     y += 0.07
-                    # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
-                    #     y -= 0.08
+                    if pitch_angle > 5:  # Giả sử góc lớn hơn 5 độ là lên dốc
+                        y -= 0.05
                 if leg.name in ['br', 'bl']:
                     y += 0.01
                     # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc

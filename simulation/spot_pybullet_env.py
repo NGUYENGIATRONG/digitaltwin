@@ -884,9 +884,9 @@ class SpotEnv(gym.Env):
                        "motor_br_upper_knee_joint"]
 
         motor_id_list = [joint_name_to_id[motor_name] for motor_name in motor_names]
-        print(motor_id_list)
-        print(joint_name_to_id)
-        print(num_joints)
+        # print(motor_id_list)
+        # print(joint_name_to_id)
+        # print(num_joints)
         return joint_name_to_id, motor_id_list
 
     def reset_leg(self, leg_id, add_constraint, standstilltorque=10):
