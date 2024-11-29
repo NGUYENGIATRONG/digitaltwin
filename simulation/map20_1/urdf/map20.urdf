@@ -3,22 +3,22 @@
      Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
-  name="map25">
+  name="map20">
   <link
-    name="map25">
+    name="map20">
     <inertial>
       <origin
-        xyz="0.107548796793732 2.22044604925031E-16 -0.09645283014845"
+        xyz="0.0523619890145821 0 -0.0978743536537081"
         rpy="0 0 0" />
       <mass
-        value="15.4085169247939" />
+        value="19.377943730784" />
       <inertia
-        ixx="0.394499374632754"
-        ixy="-2.93983648361465E-17"
-        ixz="-0.173985034249233"
-        iyy="1.64704070538689"
-        iyz="2.44222908607475E-17"
-        izz="1.89456286928721" />
+        ixx="0.708635394972485"
+        ixy="1.04025977442187E-16"
+        ixz="0.0940892087186886"
+        iyy="7.08393358069688"
+        iyz="-7.74579484429496E-18"
+        izz="7.53797480957144" />
     </inertial>
     <visual>
       <origin
@@ -26,12 +26,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://map25/meshes/map25.STL" />
+          filename="package://map20/meshes/map20.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="1 1 1 1" />
       </material>
     </visual>
     <collision>
@@ -40,7 +40,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://map25/meshes/map25.STL" />
+          filename="package://map20/meshes/map20.STL" />
       </geometry>
     </collision>
   </link>

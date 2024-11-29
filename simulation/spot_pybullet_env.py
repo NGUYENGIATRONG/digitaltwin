@@ -260,7 +260,7 @@ class SpotEnv(gym.Env):
             wedgePos = [0, 0.02, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
-            wedge_model_path = "simulation/map20/urdf/map20.urdf"
+            wedge_model_path = "simulation/map20_1/urdf/map20.urdf"
 
             self.wedge = self._pybullet_client.loadURDF(wedge_model_path, wedgePos, wedgeOrientation, useFixedBase=True)
 
