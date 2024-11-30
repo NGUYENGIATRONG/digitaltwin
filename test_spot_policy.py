@@ -4,8 +4,8 @@ import argparse
 from fabulous.color import blue, green, red, bold
 import numpy as np
 
-step_length =[0.075,0.075,0.075,0.075]
-step_height = 0.08
+step_length =[0.08,0.08,0.08,0.08]
+step_height =[0.08,0.08,0.08,0.08]
 mang1 = np.full(5000,0)
 mang2 = np.full(5000,0)
 mang3 = np.full(5000,0)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         #                 range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
         # motor_angles = env.get_motor_angles()
         # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
-        state, r, done, info = env.step(step_length)
+        state, r, done, info = env.step(step_length,step_height)
         t_r += r
         # env.draw_trajectory_link_3(interval=0.1, line_color=[1, 0, 0], line_width=1, lifeTime=0)
         # env.pybullet_client.resetDebugVisualizerCamera(0.95, 0, -0, env.get_base_pos_and_orientation()[0])
@@ -99,7 +99,7 @@ if __name__ == '__main__':
         # print(bold(blue(f"\nMotor Angles at Step {i_step}:")), motor_angles)
         # env.apply_ext_force(0,100,link_index=3,visulaize=True,life_time=5)
         step_counter += 1
-        env.pybullet_client.resetDebugVisualizerCamera(0.95, 90, -80, env.get_base_pos_and_orientation()[0])
+        # env.pybullet_client.resetDebugVisualizerCamera(0.95, 90, -80, env.get_base_pos_and_orientation()[0])
 
         # Điều kiện kết thúc nếu cần thiết
         # if done:
