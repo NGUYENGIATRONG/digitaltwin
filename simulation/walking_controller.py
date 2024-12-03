@@ -11,7 +11,7 @@ from __future__ import print_function
 
 from future.standard_library import import_
 
-from test_spot_policy import step_height
+# from test_spot_policy import step_height
 
 """Utilities for realizing walking controllers."""
 import sys
@@ -111,7 +111,7 @@ class WalkingController:
         self.back_right.y_shift = y_shift[2]
         self.back_left.y_shift = y_shift[3]
 
-    def initialize_leg_state(self, theta, step_length,step_height, test=False):
+    def initialize_leg_state(self, theta, step_length, test=False):
         """
         Khởi tạo tất cả các tham số của các quỹ đạo chân
 
@@ -130,7 +130,6 @@ class WalkingController:
             leg_sl = step_length # fr fl br bl
 
             self._update_leg_step_length_val(leg_sl)
-            self._update_leg_step_height_val(step_height)
             # self.initialize_elipse_shift(action[4:8], action[8:12])
 
         return legs
@@ -157,7 +156,7 @@ class WalkingController:
         self.back_right.step_height = step_height[2]
         self.back_left.step_height = step_height[3]
 
-    def run_elliptical_traj_spot(self, theta, step_length, step_height,step_mode):
+    def run_elliptical_traj_spot(self, theta, step_length,step_mode):
         """
         Bộ điều khiển quỹ đạo bán-ellipse
 
@@ -168,13 +167,13 @@ class WalkingController:
         from simulation import spot_pybullet_env
         # from simulation.spot_pybullet_env import SpotEnv
         # env = SpotEnv()
-        legs = self.initialize_leg_state(theta, step_length,step_height)
+        legs = self.initialize_leg_state(theta, step_length)
         print(step_mode)
         # ori = env.get_base_pos_and_orientation()[1]
         # euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
         # pitch_angle = euler_angles[1]
         # print(pitch_angle)
-        # step_height = 0.08
+        step_height = 0.08
         x_center = 0.02
         y_center = -0.29
 
@@ -191,10 +190,12 @@ class WalkingController:
                     flag = 0
                 else:
                     flag = 1
-                y = leg.step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
+                y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
                 # print(y)
                 if leg.name in ['fr', 'fl']:
                     y += 0.07
+                    if step_mode == 3:
+                        y -=0.06
                     # if pitch_angle > 5:  # Giả sử góc lớn hơn 5 độ là lên dốc
                     #     y -= 0.05
                 if leg.name in ['br', 'bl']:

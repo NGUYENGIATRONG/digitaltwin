@@ -558,7 +558,7 @@ class SpotEnv(gym.Env):
 
         return foot_contact_info
 
-    def step(self, step_length, step_height):
+    def step(self, step_length):
         """
         Hàm để thực hiện một bước trong môi trường
         :param action: mảng các giá trị hành động
@@ -571,7 +571,7 @@ class SpotEnv(gym.Env):
 
         # if self.test is False:
         #     action = self.transform_action(action)
-        self.do_simulation(step_length, step_height, n_frames=self._frame_skip)
+        self.do_simulation(step_length, n_frames=self._frame_skip)
 
         # self.do_simulation(motor_angles, n_frames=self._frame_skip)
         ob = self.get_observation()
@@ -591,7 +591,7 @@ class SpotEnv(gym.Env):
         radial_v = np.sqrt(current_v[0] ** 2 + current_v[1] ** 2)
         return radial_v, current_w
 
-    def do_simulation(self, step_length,step_height, n_frames):
+    def do_simulation(self, step_length, n_frames):
         """
         Chuyển đổi các tham số hành động thành các lệnh động cơ tương ứng
         với sự hỗ trợ của một bộ điều khiển quỹ đạo elip
@@ -606,7 +606,7 @@ class SpotEnv(gym.Env):
         pitch_angle = euler_angles[1]
         print(f"angle {pitch_angle}")
 
-        if pitch_angle > 3:  # binh thuong
+        if 3 < pitch_angle < 10:  # binh thuong
             hs = 1.5
             omega = hs* no_of_points * self._frequency
             print(f"omega{hs}")
@@ -621,14 +621,14 @@ class SpotEnv(gym.Env):
             # step_height[0] = 0.08
             # step_height[1] = 0.08
             # step_height = 0.04
-        elif  pitch_angle >15:#xuong doc
+        elif  pitch_angle >10:#xuong doc
             step_mode = 3
             hs = 1.3
             omega = hs * no_of_points * self._frequency
             print(f"omega{hs}")
         else:
             hs = 1.3
-            step_mode = 3
+            step_mode = 4
             omega = hs * no_of_points * self._frequency
             # step_height[0] = 0.13
             # step_height[1] = 0.13
@@ -638,7 +638,7 @@ class SpotEnv(gym.Env):
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
         else:
-            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_height,step_mode)
+            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_mode)
         self._theta = constrain_theta(omega * self.dt + self._theta)
         m_angle_cmd_ext = np.array(leg_m_angle_cmd)
         # m_angle_cmd_ext = np.array(motor_angles)
