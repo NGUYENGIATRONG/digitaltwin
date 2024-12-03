@@ -605,25 +605,30 @@ class SpotEnv(gym.Env):
         euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
         pitch_angle = euler_angles[1]
         print(f"angle {pitch_angle}")
-        if pitch_angle > 3:  # Giả sử góc lớn hơn 5 độ là xuong
+
+        if pitch_angle > 3:  # binh thuong
             hs = 1.5
             omega = hs* no_of_points * self._frequency
             print(f"omega{hs}")
+            step_mode = 1
             # step_height[0] = 0.13
             # step_height[1] = 0.13
-        elif pitch_angle < -1:  # Giả sử góc nhỏ hơn -5 độ là len
+        elif pitch_angle < -1:  # len doc
             hs = 1.75
+            step_mode = 2
             omega = hs * no_of_points * self._frequency
             print(f"omega{hs}")
             # step_height[0] = 0.08
             # step_height[1] = 0.08
             # step_height = 0.04
-        elif  pitch_angle >15:
+        elif  pitch_angle >15:#xuong doc
+            step_mode = 3
             hs = 1.3
             omega = hs * no_of_points * self._frequency
             print(f"omega{hs}")
         else:
             hs = 1.3
+            step_mode = 3
             omega = hs * no_of_points * self._frequency
             # step_height[0] = 0.13
             # step_height[1] = 0.13
@@ -633,7 +638,7 @@ class SpotEnv(gym.Env):
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
         else:
-            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_height)
+            leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_height,step_mode)
         self._theta = constrain_theta(omega * self.dt + self._theta)
         m_angle_cmd_ext = np.array(leg_m_angle_cmd)
         # m_angle_cmd_ext = np.array(motor_angles)

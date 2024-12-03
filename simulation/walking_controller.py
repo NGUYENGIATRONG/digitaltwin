@@ -157,7 +157,7 @@ class WalkingController:
         self.back_right.step_height = step_height[2]
         self.back_left.step_height = step_height[3]
 
-    def run_elliptical_traj_spot(self, theta, step_length, step_height):
+    def run_elliptical_traj_spot(self, theta, step_length, step_height,step_mode):
         """
         Bộ điều khiển quỹ đạo bán-ellipse
 
@@ -169,6 +169,7 @@ class WalkingController:
         # from simulation.spot_pybullet_env import SpotEnv
         # env = SpotEnv()
         legs = self.initialize_leg_state(theta, step_length,step_height)
+        print(step_mode)
         # ori = env.get_base_pos_and_orientation()[1]
         # euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
         # pitch_angle = euler_angles[1]
