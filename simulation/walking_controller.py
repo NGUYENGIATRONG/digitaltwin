@@ -193,13 +193,13 @@ class WalkingController:
                 y = step_height * np.sin(leg_theta) * flag + y_center + leg.y_shift
                 # print(y)
                 if leg.name in ['fr', 'fl']:
-                    y += 0.07
+                    y += 0.08
                     if step_mode == 3:
                         y -=0.06
                     # if pitch_angle > 5:  # Giả sử góc lớn hơn 5 độ là lên dốc
                     #     y -= 0.05
                 if leg.name in ['br', 'bl']:
-                    y += 0.01
+                    y += 0.00
                     # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
                     #     y -= 0.08
 
