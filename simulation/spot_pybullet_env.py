@@ -257,10 +257,10 @@ class SpotEnv(gym.Env):
             # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
             wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*1.7
-            wedgePos = [0, 0.02, wedge_halfheight]
+            wedgePos = [0, -0.00, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
-            wedge_model_path = "simulation/map25/urdf/map25.urdf"
+            wedge_model_path = "simulation/map30/urdf/map30.urdf"
 
             self.wedge = self._pybullet_client.loadURDF(wedge_model_path, wedgePos, wedgeOrientation, useFixedBase=True)
 
@@ -606,7 +606,7 @@ class SpotEnv(gym.Env):
         pitch_angle = euler_angles[1]
         print(f"angle {pitch_angle}")
 
-        if 3 < pitch_angle < 12:  # binh thuong
+        if 1 < pitch_angle < 12:  # binh thuong
             hs = 1.5
             omega = hs* no_of_points * self._frequency
             print(f"omega{hs}")
