@@ -260,7 +260,7 @@ class SpotEnv(gym.Env):
             wedgePos = [0, -0.00, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
-            wedge_model_path = "simulation/map30/urdf/map30.urdf"
+            wedge_model_path = "simulation/map30xuongdoc/urdf/map30xuongdoc.urdf"
 
             self.wedge = self._pybullet_client.loadURDF(wedge_model_path, wedgePos, wedgeOrientation, useFixedBase=True)
 
@@ -268,8 +268,8 @@ class SpotEnv(gym.Env):
             self._pybullet_client.changeDynamics(self.wedge, -1, lateralFriction=1.6)
 
             # Tính toán vị trí khởi đầu của robot trên miếng cản
-            self.robot_landing_height = wedge_halfheight_offset + 0.28 + np.tan(np.radians(incline_deg)) * abs(
-                self.wedge_start)
+            self.robot_landing_height = wedge_halfheight_offset + 0.5 + np.tan(np.radians(incline_deg)) * abs(
+                self.wedge_start)#0.01+0.28+0.26+0.5
             self.INIT_POSITION = [self.INIT_POSITION[0], self.INIT_POSITION[1], self.robot_landing_height]
 
         model_path = "simulation/SpotDog2305/urdf/SpotDog2305.urdf"
