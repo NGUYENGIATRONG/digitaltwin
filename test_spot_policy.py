@@ -106,3 +106,5 @@ if __name__ == '__main__':
         #     break
 
     print("Total reward: " + str(t_r) + ' -> ' + str(args.PolicyDir))
+# cấu hình token
+
