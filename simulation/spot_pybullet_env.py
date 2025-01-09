@@ -257,7 +257,7 @@ class SpotEnv(gym.Env):
             # incline_ori = getattr(self, "incline_ori", 0)
             wedge_halfheight_offset = 0.01
             wedge_halfheight = wedge_halfheight_offset + 1.5 * np.tan(np.radians(incline_deg))*1.7
-            wedgePos = [0, -0.00, wedge_halfheight]
+            wedgePos = [1000, 1000, wedge_halfheight]
             wedgeOrientation = self._pybullet_client.getQuaternionFromEuler([0, 0, 0])
 
             wedge_model_path = "simulation/map30xuongdoc/urdf/map30xuongdoc.urdf"
@@ -600,40 +600,41 @@ class SpotEnv(gym.Env):
         :return:
         """
         # step_height = 0.08
-        hs=1.5
-        pos,ori = self.get_base_pos_and_orientation()
-        euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
-        pitch_angle = euler_angles[1]
-        print(f"angle {pitch_angle}")
-
-        if 1 < pitch_angle < 12:  # binh thuong
-            hs = 1.5
-            omega = hs* no_of_points * self._frequency
-            print(f"omega{hs}")
-            step_mode = 1
-            # step_height[0] = 0.13
-            # step_height[1] = 0.13
-        elif pitch_angle < -1:  # len doc
-            hs = 1.75
-            step_mode = 2
-            omega = hs * no_of_points * self._frequency
-            print(f"omega{hs}")
-            # step_height[0] = 0.08
-            # step_height[1] = 0.08
-            # step_height = 0.04
-        elif  pitch_angle >12:#xuong doc
-            step_mode = 3
-            hs = 1.3
-            omega = hs * no_of_points * self._frequency
-            print(f"omega{hs}")
-        else:
-            hs = 1.3
-            step_mode = 4
-            omega = hs * no_of_points * self._frequency
-            # step_height[0] = 0.13
-            # step_height[1] = 0.13
-            # step_height = 0.05
-        # omega = 1.5 * no_of_points * self._frequency
+        # hs=1.5
+        # pos,ori = self.get_base_pos_and_orientation()
+        # euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
+        # pitch_angle = euler_angles[1]
+        # print(f"angle {pitch_angle}")
+        #
+        # if 1 < pitch_angle < 12:  # binh thuong
+        #     hs = 1.5
+        #     omega = hs* no_of_points * self._frequency
+        #     print(f"omega{hs}")
+        #     step_mode = 1
+        #     # step_height[0] = 0.13
+        #     # step_height[1] = 0.13
+        # elif pitch_angle < -1:  # len doc
+        #     hs = 1.75
+        #     step_mode = 2
+        #     omega = hs * no_of_points * self._frequency
+        #     print(f"omega{hs}")
+        #     # step_height[0] = 0.08
+        #     # step_height[1] = 0.08
+        #     # step_height = 0.04
+        # elif  pitch_angle >12:#xuong doc
+        #     step_mode = 3
+        #     hs = 1.3
+        #     omega = hs * no_of_points * self._frequency
+        #     print(f"omega{hs}")
+        # else:
+        #     hs = 1.3
+        #     step_mode = 4
+        #     omega = hs * no_of_points * self._frequency
+        #     # step_height[0] = 0.13
+        #     # step_height[1] = 0.13
+        #     # step_height = 0.05
+        omega = 1.5 * no_of_points * self._frequency
+        step_mode = 1
         # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
         if self.test is True:
             leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)

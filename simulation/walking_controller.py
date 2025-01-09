@@ -198,10 +198,10 @@ class WalkingController:
                         y -=0.002
                     # if pitch_angle > 5:  # Giả sử góc lớn hơn 5 độ là lên dốc
                     #     y -= 0.05
-                if leg.name in ['br', 'bl']:
-                    y += 0.01
-                    # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
-                    #     y -= 0.08
+                # if leg.name in ['br', 'bl']:
+                #     y += 0.01
+                #     # if pitch_angle > 15:  # Giả sử góc lớn hơn 5 độ là lên dốc
+                #     #     y -= 0.08
 
             leg.x, leg.y = x, y
 

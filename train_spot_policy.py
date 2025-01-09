@@ -118,8 +118,9 @@ class Policy:
             print("Training from random policy")
         else:
             self.theta = np.load(dir_policy)
-            print("Training from policy with guided policy")
+            print("Training from policy with guided policy")##train tu chinh sach cu
 
+    #danh gia hanh dong dua tren nhieu va huong
     def evaluate(self, state_input, delta, direction, hp):
         if direction is None:
             return np.clip(self.theta.dot(state_input), -1.0, 1.0)
@@ -127,7 +128,7 @@ class Policy:
             return np.clip((self.theta + hp.noise * delta).dot(state_input), -1.0, 1.0)
         else:
             return np.clip((self.theta - hp.noise * delta).dot(state_input), -1.0, 1.0)
-
+    #sinh ra ma tran nhieu
     def sample_deltas(self):
         return [np.random.randn(*self.theta.shape) for _ in range(hyper_parameters.nb_directions)]
 
@@ -163,7 +164,7 @@ def explore(environment, data, direction, delta, hp):
         num_plays += 1
     return sum_rewards
 
-
+#Đánh giá chính sách trên tập kiểm tra. Có thể áp dụng ngẫu nhiên hóa môi trường (domain randomization)
 def policy_evaluation(environment, data, hp):
     reward_evaluation = 0
     if hp.domain_Rand:
@@ -317,8 +318,8 @@ def train(environment, data, hp, parent_pipes, info):
         rollouts = [(positive_rewards[k], negative_rewards[k], deltas[k]) for k in order]
 
         # Gathering all the positive/negative rewards to compute the standard deviation of these rewards
-        all_rewards = np.array([x[0] for x in rollouts] + [x[1] for x in rollouts])
-        sigma_r = all_rewards.std()  # Standard deviation of only rewards in the best directions is what it should be
+        all_rewards = np.array([x[0] for x in rollouts] + [x[1] for x in rollouts])#tập hợp tất cả phần thưởng (cả hướng dương và âm) từ các rollouts tốt nhất.
+        sigma_r = all_rewards.std()  # Độ lệch chuẩn (standard deviation) của các phần thưởng, dùng để chuẩn hóa khi cập nhật chính sách.
         # Updating our policy
         data.update(rollouts, sigma_r)
 

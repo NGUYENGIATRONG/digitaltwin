@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # Các tham số của chương trình
     parser.add_argument('--PolicyDir', help='directory of the policy to be tested', type=str, default='23.04.1.j')
-    parser.add_argument('--FrictionCoeff', help='foot friction value to be set', type=float, default=2.0)
+    parser.add_argument('--FrictionCoeff', help='foot friction value to be set', type=float, default=1.6)
     parser.add_argument('--WedgeIncline', help='wedge incline degree of the wedge', type=int, default=15)
     parser.add_argument('--WedgeOrientation', help='wedge orientation degree of the wedge', type=float, default=0)
     parser.add_argument('--MotorStrength', help='maximum motor Strength to be applied', type=float, default=7.0)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
                        stairs=args.Stairs,
                        downhill=args.Downhill,
                        seed_value=args.seed,
-                       on_rack=False,
+                       on_rack=True,
                        gait='trot',
                        imu_noise=args.AddImuNoise,
                        test=args.Test,
@@ -91,7 +91,8 @@ if __name__ == '__main__':
         #                 range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
         # motor_angles = env.get_motor_angles()
         # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
-        state, r, done, info = env.step(step_length)
+        action = policy.dot(state)
+        state, r, done, info = env.step(action)
         t_r += r
         # env.draw_trajectory_link_3(interval=0.1, line_color=[1, 0, 0], line_width=1, lifeTime=0)
  # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
