@@ -150,12 +150,12 @@ class SpotKinematics:
         return vaild, ee_pos
 
 kinematic = SpotKinematics()
-theta1 = np.radians(-146.12159007)
-theta2 = np.radians(-61.16792781)
+# theta1 = np.radians(-146.12159007)
+# theta2 = np.radians(-61.16792781)
 x = -0.05
 y = -0.25
 z = 0
 ee_pos = [x, y, z]
-q = [theta1, theta2]
+# q = [theta1, theta2]
 print(np.degrees(kinematic.inverse_kinematics(x, y, z)))
-print(kinematic.forward_kinematics(q))
+# print(kinematic.forward_kinematics(q))

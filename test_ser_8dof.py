@@ -101,18 +101,18 @@ def update_joint_data():
     motor_angles[2] = np.degrees(motor_angles[2]) + 20
     motor_angles[4] = np.degrees(motor_angles[4]) + 20
     motor_angles[6] = np.degrees(motor_angles[6]) + 20
-    motor_angles[1] = np.degrees(-motor_angles[1]) - 40 + 180  #1 3 5 7 knee
-    motor_angles[3] = np.degrees(-motor_angles[3]) - 40 + 180
-    motor_angles[5] = np.degrees(-motor_angles[5]) - 40 + 180
-    motor_angles[7] = np.degrees(-motor_angles[7]) - 40 + 180
+    motor_angles[1] = np.degrees(motor_angles[1]) - 40 + 180  #1 3 5 7 knee
+    motor_angles[3] = np.degrees(motor_angles[3]) - 40 + 180
+    motor_angles[5] = np.degrees(motor_angles[5]) - 40 + 180
+    motor_angles[7] = np.degrees(motor_angles[7]) - 40 + 180
     # Lưu các góc khớp vào danh sách (chuyển từ radian sang độ)
     print(bold("Motor angles: "), green(motor_angles))
     motor_angles_byte_arr = [round(i) for i in motor_angles]
     # print("\n max: ", max(motor_angles_byte_arr))
     # print("\n min: ", min(motor_angles_byte_arr))
-    # send_data(motor_angles_byte_arr)
+    send_data(motor_angles_byte_arr)
    
-    read_data()
+    # read_data()
 
     for j in range(8):
         joint_angles[j].append(motor_angles[j])  # Lưu trực tiếp nếu cần radian021

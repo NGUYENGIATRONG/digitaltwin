@@ -173,7 +173,7 @@ class WalkingController:
         # euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
         # pitch_angle = euler_angles[1]
         # print(pitch_angle)
-        step_height = 0.08
+        step_height = 0.03
         x_center = 0.02
         y_center = -0.29
 

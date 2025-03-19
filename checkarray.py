@@ -4,9 +4,10 @@ from fabulous.color import blue, green, red, bold
 import numpy as np
 import time
 from test_spot_policy import motor_angles_list
-
+b = 61.16792781
+a = 146.12159007
 # Góc động cơ cố định mà bạn chọn (thay đổi các giá trị này theo nhu cầu)
-fixed_motor_angles = [np.radians( 22.37531541 - 20), np.radians( 40 - ( 180 - 140.4276661)),np.radians(22.37531541 - 20),np.radians(40 - ( 180 - 140.4276661) ),np.radians(22.37531541 -20),np.radians(40 - ( 180 - 140.4276661)),np.radians(22.37531541 -20),np.radians(40 - ( 180 - 140.4276661))]  # Giá trị góc theo radian (có thể thay đổi)
+fixed_motor_angles = [np.radians( a - 20), np.radians( 40 - ( 180 - b)),np.radians(a - 20),np.radians(40 - ( 180 - b) ),np.radians(a -20),np.radians(40 - ( 180 - b )),np.radians(a -20),np.radians(40 - ( 180 - b))]  # Giá trị góc theo radian (có thể thay đổi)
 
 #hip knee
 if __name__ == '__main__':
@@ -35,7 +36,7 @@ if __name__ == '__main__':
 
     while 1:
         # Sử dụng góc động cơ cố định cho mỗi bước
-        state, r, done, info = env.step(fixed_motor_angles)
+        state, r, done, info = env.step_motorangles(fixed_motor_angles)
         t_r += r
         motor_angles_list=env.get_motor_angles()
         print(np.degrees(motor_angles_list))

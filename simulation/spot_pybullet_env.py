@@ -577,6 +577,11 @@ class SpotEnv(gym.Env):
         ob = self.get_observation()
         reward, done = self._get_reward()
         return ob, reward, done, {}
+    
+    def step_motorangles(self, motor_angles):
+        self.do_simulation_motor(motor_angles, n_frames=self._frame_skip)
+        # ob = self.get_observation()
+        return None, 0, False, {}
 
 
     def current_velocities(self):
@@ -599,40 +604,6 @@ class SpotEnv(gym.Env):
         :param n_frames:
         :return:
         """
-        # step_height = 0.08
-        # hs=1.5
-        # pos,ori = self.get_base_pos_and_orientation()
-        # euler_angles = R.from_quat(ori).as_euler('xyz', degrees=True)
-        # pitch_angle = euler_angles[1]
-        # print(f"angle {pitch_angle}")
-        #
-        # if 1 < pitch_angle < 12:  # binh thuong
-        #     hs = 1.5
-        #     omega = hs* no_of_points * self._frequency
-        #     print(f"omega{hs}")
-        #     step_mode = 1
-        #     # step_height[0] = 0.13
-        #     # step_height[1] = 0.13
-        # elif pitch_angle < -1:  # len doc
-        #     hs = 1.75
-        #     step_mode = 2
-        #     omega = hs * no_of_points * self._frequency
-        #     print(f"omega{hs}")
-        #     # step_height[0] = 0.08
-        #     # step_height[1] = 0.08
-        #     # step_height = 0.04
-        # elif  pitch_angle >12:#xuong doc
-        #     step_mode = 3
-        #     hs = 1.3
-        #     omega = hs * no_of_points * self._frequency
-        #     print(f"omega{hs}")
-        # else:
-        #     hs = 1.3
-        #     step_mode = 4
-        #     omega = hs * no_of_points * self._frequency
-        #     # step_height[0] = 0.13
-        #     # step_height[1] = 0.13
-        #     # step_height = 0.05
         omega = 1.5 * no_of_points * self._frequency
         step_mode = 1
         # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
@@ -642,6 +613,57 @@ class SpotEnv(gym.Env):
             leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_mode)
         self._theta = constrain_theta(omega * self.dt + self._theta)
         m_angle_cmd_ext = np.array(leg_m_angle_cmd)
+        # m_angle_cmd_ext = np.array(motor_angles)
+        m_vel_cmd_ext = np.zeros(8)
+
+        force_visualizing_counter = 0
+
+        for _ in range(n_frames):
+            _ = self._apply_pd_control(m_angle_cmd_ext, m_vel_cmd_ext)
+            self._pybullet_client.stepSimulation()
+
+            if self.perturb_steps <= self._n_steps <= self.perturb_steps + self.stride:
+                pass
+                force_visualizing_counter += 1
+                if force_visualizing_counter % 7 == 0:
+                    self.apply_ext_force(self.x_f, self.y_f, visulaize=False, life_time=0.1)
+                else:
+                    self.apply_ext_force(self.x_f, self.y_f, visulaize=False)
+
+        contact_info = self.get_foot_contacts()#ma trận tín hiệu khi chân tiếp xúc
+        pos, ori = self.get_base_pos_and_orientation()# vị trí và hướng của robot
+
+        rot_mat = self._pybullet_client.getMatrixFromQuaternion(ori)
+        rot_mat = np.array(rot_mat)
+        rot_mat = np.reshape(rot_mat, (3, 3))
+
+        plane_normal, self.support_plane_estimated_roll, self.support_plane_estimated_pitch = \
+            normal_estimator.vector_method_stoch2(self.prev_incline_vec, contact_info, self.get_motor_angles(), rot_mat)
+        self.prev_incline_vec = plane_normal
+
+        # line_id = self._pybullet_client.addUserDebugLine([0, 0, 0], plane_normal, lineColorRGB=[1, 0, 0], lineWidth=2)
+        # if 'line_id' in globals():
+        #     self._pybullet_client.removeUserDebugItem(line_id)
+
+        self._n_steps += 1
+
+    def do_simulation_motor(self, motor_angles, n_frames):
+        """
+        Chuyển đổi các tham số hành động thành các lệnh động cơ tương ứng
+        với sự hỗ trợ của một bộ điều khiển quỹ đạo elip
+        :param action:
+        :param n_frames:
+        :return:
+        """
+        omega = 1.5 * no_of_points * self._frequency
+        step_mode = 1
+        # self._walkcon.plot_trajectory(self._theta, step_length, no_of_points)
+        # if self.test is True:
+        #     leg_m_angle_cmd = self._walkcon.run_elliptical(self._theta, self.test)
+        # else:
+        #     leg_m_angle_cmd = self._walkcon.run_elliptical_traj_spot(self._theta, step_length,step_mode)
+        self._theta = constrain_theta(omega * self.dt + self._theta)
+        m_angle_cmd_ext = np.array(motor_angles)
         # m_angle_cmd_ext = np.array(motor_angles)
         m_vel_cmd_ext = np.zeros(8)
 
@@ -906,7 +928,9 @@ class SpotEnv(gym.Env):
                        "motor_bl_upper_hip_joint",
                        "motor_bl_upper_knee_joint",
                        "motor_br_upper_hip_joint",
-                       "motor_br_upper_knee_joint"]
+                       "motor_br_upper_knee_joint"
+                       
+                       ]
 
         motor_id_list = [joint_name_to_id[motor_name] for motor_name in motor_names]
         # print(motor_id_list)

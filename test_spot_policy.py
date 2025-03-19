@@ -6,14 +6,14 @@ import numpy as np
 
 step_length =[0.08,0.08,0.08,0.08]
 # step_height =[0.08,0.08,0.08,0.08]
-mang1 = np.full(5000,0)
-mang2 = np.full(5000,0)
-mang3 = np.full(5000,0)
-mang4 = np.full(5000,0)
-mang5 = np.full(5000,0)
-mang6 = np.full(5000,0)
-mang7 = np.full(5000,0)
-mang8 = np.full(5000,0)
+mang1 = np.load("/home/ed/SPOTDOG/motor_angle_1.npy")
+mang2 = np.load("/home/ed/SPOTDOG/motor_angle_2.npy")
+mang3 = np.load("/home/ed/SPOTDOG/motor_angle_3.npy")
+mang4 = np.load("/home/ed/SPOTDOG/motor_angle_4.npy")
+mang5 = np.load("/home/ed/SPOTDOG/motor_angle_5.npy")
+mang6 = np.load("/home/ed/SPOTDOG/motor_angle_6.npy")
+mang7 = np.load("/home/ed/SPOTDOG/motor_angle_7.npy")
+mang8 = np.load("/home/ed/SPOTDOG/motor_angle_8.npy")
 motor_angles_list = [mang1,mang2,mang3,mang4,mang5,mang6,mang7,mang8]
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -87,12 +87,12 @@ if __name__ == '__main__':
 
     for i_step in range(args.EpisodeLength):
         # Lấy danh sách góc động cơ tại bước `i_step`
-        # motor_angles = [motor_angles_list[i][i_step] for i in
-        #                 range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
+        motor_angles = [motor_angles_list[i][i_step] for i in
+                        range(8)]  # Tạo danh sách góc cho từng động cơ tại bước `i_step`
         # motor_angles = env.get_motor_angles()
         # Thực hiện bước mô phỏng với góc động cơ đã có sẵn
-        action = policy.dot(state)
-        state, r, done, info = env.step(action)
+        # action = policy.dot(state)
+        state, r, done, info = env.step_motorangles(motor_angles)
         t_r += r
         # env.draw_trajectory_link_3(interval=0.1, line_color=[1, 0, 0], line_width=1, lifeTime=0)
  # In thông tin về góc động cơ tại mỗi bước (nếu cần thiết)
